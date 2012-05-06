@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<template>
+
+  <options rootname="input" />
+
+  <typedef name="settings_xml">
+    <component name="histories" type="integer" />
+    <component name="seed" type="integer" />
+    <component name="source_type" type="integer" />
+    <component name="source_path" type="word" length="255" />
+    <component name="Dancoff" type="double" />
+    <component name="res_iso" type="word" length="255" />
+    <component name="radius" type="double" />
+    <component name="temperature" type="double" />
+  </typedef>
+
+  <typedef name="nuclide_xml">
+    <component name="N" type="double" />
+    <component name="A" type="double" />
+    <component name="V" type="double" />
+    <component name="path" type="word" length="255" />
+    <component name="thermal" type="logical" />
+    <component name="name" type="word" length="255" />
+    <component name="doppler_broaden" type="logical"/>
+  </typedef>
+
+  <typedef name="material_xml">
+    <component name="type" type="word" length="255" />
+    <component name="V" type="double" />
+    <component name="nuclides" tag="nuclide" type="nuclide_xml" dimension="1" />
+  </typedef>
+
+  <typedef name="materials_xml">
+    <component name="material" tag="material" type="material_xml" dimension="1" />
+  </typedef>
+
+  <typedef name="tally_xml" />
+    <component name="dv" type="logical" default=".false."/>
+    <component name="Ebins" type="double-array" />
+    <component name="type"  type="word" length="255" />
+    <component name="isotope" type="integer" />
+    <component name="region"  type="integer" />
+  </typedef>
+
+  <typedef name="tallies_xml">
+    <component name="tally" tag="tally" type="tally_xml"  dimension="1" />
+  </typedef>
+
+  <variable name="settings_"  tag="settings"  type="settings_xml"  />
+  <variable name="materials_" tag="materials" type="materials_xml" />
+  <variable name="tallies_"   tag="tallies"   type="tallies_xml"   />
+
+</template>

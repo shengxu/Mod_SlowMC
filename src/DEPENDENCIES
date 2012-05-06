@@ -1,0 +1,36 @@
+parameters.o: constants.o
+
+on_the_fly_xs_gen.o: constants.o
+on_the_fly_xs_gen.o: parameters.o
+
+LinearInterpolation.o: BiSearch.o
+
+materials.o: constants.o
+materials.o: parameters.o
+materials.o: on_the_fly_xs_gen.o
+materials.o: LinearInterpolation.o
+
+tally.o: BiSearch.o
+
+global.o: materials.o
+global.o: particle.o
+global.o: tally.o
+global.o: timing.o
+
+physics.o: global.o
+
+
+input.o: parameters.o
+input.o: global.o
+input.o: xml-fortran/templates/input_t.o
+input.o: parameters.o
+
+main.o: parameters.o
+main.o: global.o
+main.o: input.o
+main.o: output.o
+main.o: particle.o
+main.o: physics.o
+main.o: tally.o
+main.o: timing.o
+main.o: on_the_fly_xs_gen.o

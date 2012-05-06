@@ -1,0 +1,6 @@
+module temperature
+    implicit none
+
+    real(8)      :: T   ! temperature
+
+end module temperature
