@@ -316,9 +316,9 @@ contains
       end if
     end do
 
-!    if (reactid == 0) then
-!      reactid = 1 
-!    end if
+    if (reactid == 0) then
+      reactid = 1 
+    end if
 
 ! ! Added by S. Xu for debug
 ! write(11, '(5e19.8e3)') rn, cdf

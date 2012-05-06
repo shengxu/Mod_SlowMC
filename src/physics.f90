@@ -334,7 +334,11 @@ contains
 
   subroutine elastic_scattering(region,isoidx)
 
-    use global, only: neut,mat,kT
+    use global, only: neut,mat,kT    
+    ! Added by S. Xu (May 2012)    
+    use constants, only: K_BOLTZMANN
+    use parameters, only: T  
+
 
     ! formal variables
     integer :: region ! region of interaction
@@ -354,6 +358,8 @@ contains
 
     ! check for thermal scattering
     if (neut%E < 4e-6_8 .and. mat(region)%isotopes(isoidx)%thermal) then
+
+      kT = K_BOLTZMANN*1._8e6_8*T
 
       ! get index in cdf
       idx = ceiling(rn/mat(region)%isotopes(isoidx)%thermal_lib%cdf_width)
