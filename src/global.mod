@@ -1,5 +1,5 @@
-GFORTRAN module version '6' created from global.f90 on Thu May  3 00:44:20 2012
-MD5:a6549fe98cc99ee4f43c3f0746bf2c7f -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '6' created from global.f90 on Sun May  6 11:30:26 2012
+MD5:83b38a1c53e6dc485039c641d6bac825 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -79,55 +79,56 @@ REAL 8 0 0 REAL ()) () (UNKNOWN-FL UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 UNKNOWN 0 0) UNKNOWN-ACCESS ()) (32 'doppler' (LOGICAL 4 0 0 LOGICAL ())
 () (UNKNOWN-FL UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0)
 UNKNOWN-ACCESS ())) PUBLIC (() () () ()) () 0 0 1686055)
-33 '__convert_i4_r8' '(intrinsic)' '__convert_i4_r8' 1 ((PROCEDURE
+33 '__convert_r4_r8' '(intrinsic)' '__convert_r4_r8' 1 ((PROCEDURE
 UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 FUNCTION ELEMENTAL PURE)
 (REAL 8 0 0 REAL ()) 0 0 () () 33 () () () 0 0)
-34 '__convert_r4_r8' '(intrinsic)' '__convert_r4_r8' 1 ((PROCEDURE
-UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 FUNCTION ELEMENTAL PURE)
-(REAL 8 0 0 REAL ()) 0 0 () () 34 () () () 0 0)
-35 'add_to_tallies' 'global' 'add_to_tallies' 1 ((PROCEDURE
+34 'add_to_tallies' 'global' 'add_to_tallies' 1 ((PROCEDURE
 UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (
 UNKNOWN 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-36 'allocate_problem' 'global' 'allocate_problem' 1 ((PROCEDURE
+35 'allocate_problem' 'global' 'allocate_problem' 1 ((PROCEDURE
 UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE) (UNKNOWN 0 0 0
 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-37 'ana_kinf_mean' 'global' 'ana_kinf_mean' 1 ((VARIABLE UNKNOWN-INTENT
+36 'ana_kinf_mean' 'global' 'ana_kinf_mean' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-38 'ana_kinf_std' 'global' 'ana_kinf_std' 1 ((VARIABLE UNKNOWN-INTENT
+37 'ana_kinf_std' 'global' 'ana_kinf_std' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-39 'bank_tallies' 'global' 'bank_tallies' 1 ((PROCEDURE UNKNOWN-INTENT
+38 'bank_tallies' 'global' 'bank_tallies' 1 ((PROCEDURE UNKNOWN-INTENT
 MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (UNKNOWN 0 0 0
 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-40 'col_kinf_mean' 'global' 'col_kinf_mean' 1 ((VARIABLE UNKNOWN-INTENT
+39 'col_kinf_mean' 'global' 'col_kinf_mean' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-41 'col_kinf_mean_2' 'global' 'col_kinf_mean_2' 1 ((VARIABLE
+40 'col_kinf_mean_2' 'global' 'col_kinf_mean_2' 1 ((VARIABLE
 UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL
 ()) 0 0 () () 0 () () () 0 0)
-42 'col_kinf_std' 'global' 'col_kinf_std' 1 ((VARIABLE UNKNOWN-INTENT
+41 'col_kinf_std' 'global' 'col_kinf_std' 1 ((VARIABLE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0
 () () () 0 0)
-43 'col_kinf_std_2' 'global' 'col_kinf_std_2' 1 ((VARIABLE
+42 'col_kinf_std_2' 'global' 'col_kinf_std_2' 1 ((VARIABLE
 UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL
 ()) 0 0 () () 0 () () () 0 0)
-44 'compute_macro_cross_sections' 'global' 'compute_macro_cross_sections'
+43 'compute_macro_cross_sections' 'global' 'compute_macro_cross_sections'
 1 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
 IMPLICIT_PURE) (UNKNOWN 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-45 'dancoff' 'global' 'dancoff' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
+44 'dancoff' 'global' 'dancoff' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
-46 'deallocate_problem' 'global' 'deallocate_problem' 1 ((PROCEDURE
+45 'deallocate_problem' 'global' 'deallocate_problem' 1 ((PROCEDURE
 UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE) (UNKNOWN 0 0 0
 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-47 'doppler_broaden' 'global' 'doppler_broaden' 1 ((PROCEDURE
+46 'doppler_broaden' 'global' 'doppler_broaden' 1 ((PROCEDURE
 UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (
 UNKNOWN 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-48 'finalize_tallies' 'global' 'finalize_tallies' 1 ((PROCEDURE
+47 'finalize_tallies' 'global' 'finalize_tallies' 1 ((PROCEDURE
 UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE) (UNKNOWN 0 0 0
 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-49 'global' 'global' 'global' 1 ((MODULE UNKNOWN-INTENT UNKNOWN-PROC
+48 'global' 'global' 'global' 1 ((MODULE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN UNKNOWN 0 0) (UNKNOWN 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
+49 'in_out_filename' 'global' 'in_out_filename' 1 ((VARIABLE
+UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (CHARACTER 1 0 0
+CHARACTER ((CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '255'))) 0 0 () () 0 ()
+() () 0 0)
 50 'kt' 'global' 'kt' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
 51 'mat' 'global' 'mat' 1 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
@@ -303,12 +304,12 @@ UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN EXPLICIT-SAVE 0 0) (INTEGER 4 0 0
 INTEGER ()) 0 0 () () 0 () () () 0 0)
 )
 
-('__convert_i4_r8' 0 33 '__convert_r4_r8' 0 34 'add_to_tallies' 0 35
-'allocate_problem' 0 36 'ana_kinf_mean' 0 37 'ana_kinf_std' 0 38
-'bank_tallies' 0 39 'col_kinf_mean' 0 40 'col_kinf_mean_2' 0 41
-'col_kinf_std' 0 42 'col_kinf_std_2' 0 43 'compute_macro_cross_sections'
-0 44 'dancoff' 0 45 'deallocate_problem' 0 46 'doppler_broaden' 0 47
-'finalize_tallies' 0 48 'global' 0 49 'kt' 0 50 'mat' 0 51 'material_type'
+('__convert_r4_r8' 0 33 'add_to_tallies' 0 34 'allocate_problem' 0 35
+'ana_kinf_mean' 0 36 'ana_kinf_std' 0 37 'bank_tallies' 0 38
+'col_kinf_mean' 0 39 'col_kinf_mean_2' 0 40 'col_kinf_std' 0 41
+'col_kinf_std_2' 0 42 'compute_macro_cross_sections' 0 43 'dancoff' 0 44
+'deallocate_problem' 0 45 'doppler_broaden' 0 46 'finalize_tallies' 0 47
+'global' 0 48 'in_out_filename' 0 49 'kt' 0 50 'mat' 0 51 'material_type'
 0 52 'n_abs' 0 74 'n_fiss' 0 75 'n_materials' 0 76 'n_tallies' 0 77 'neut'
 0 78 'nhistories' 0 80 'nubar' 0 81 'particle_type' 0 79 'radius' 0 87
 'reaction_tally' 0 88 'res_iso' 0 89 'seed' 0 90 'source_type' 0 91 'tal'

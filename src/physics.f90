@@ -336,7 +336,7 @@ contains
 
     use global, only: neut,mat,kT    
     ! Added by S. Xu (May 2012)    
-    use constants, only: K_BOLTZMANN
+    use constants, only: K_BOLTZMANN, ONE
     use parameters, only: T  
 
 
@@ -359,7 +359,7 @@ contains
     ! check for thermal scattering
     if (neut%E < 4e-6_8 .and. mat(region)%isotopes(isoidx)%thermal) then
 
-      kT = K_BOLTZMANN*1._8e6_8*T
+      kT = K_BOLTZMANN*1.e6_8*T
 
       ! get index in cdf
       idx = ceiling(rn/mat(region)%isotopes(isoidx)%thermal_lib%cdf_width)

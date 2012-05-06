@@ -1,4 +1,4 @@
-GFORTRAN module version '6' created from tally.f90 on Wed May  2 19:16:28 2012
+GFORTRAN module version '6' created from tally.f90 on Sun May  6 11:30:26 2012
 MD5:8cd5a018fa012c95a4adf03a7c5b1e87 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () () ()

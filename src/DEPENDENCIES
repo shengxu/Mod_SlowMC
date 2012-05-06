@@ -17,8 +17,9 @@ global.o: particle.o
 global.o: tally.o
 global.o: timing.o
 
+physics.o: constants.o
+physics.o: parameters.o
 physics.o: global.o
-
 
 input.o: parameters.o
 input.o: global.o

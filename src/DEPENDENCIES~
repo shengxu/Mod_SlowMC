@@ -1,3 +1,5 @@
+parameters.o: constants.o
+
 on_the_fly_xs_gen.o: constants.o
 on_the_fly_xs_gen.o: parameters.o
 

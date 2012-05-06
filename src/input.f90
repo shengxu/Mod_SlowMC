@@ -26,7 +26,7 @@ contains
 
     use global,           only: nhistories,seed,source_type,mat, & !emin,emax,     & ! commented out by S. Xu
    &                            allocate_problem,tal,n_tallies,n_materials,    &
-   &                            res_iso,Dancoff,radius
+   &                            res_iso,Dancoff,radius, in_out_filename
     use materials,        only: setup_material,load_source,load_isotope
     use tally,            only: set_user_tally,set_spectrum_tally,             &
    &                            set_kinf_tally
@@ -70,6 +70,10 @@ contains
     end if
     
     write(*,*) filename
+
+    in_out_filename = filename(1:(len(trim(filename))-4))
+
+!    write(*,*) in_out_filename
 
     inquire(FILE=trim(filename), EXIST=file_exists)
     if (.not. file_exists) then

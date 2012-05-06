@@ -1,4 +1,4 @@
-GFORTRAN module version '6' created from timing.f90 on Wed May  2 19:16:28 2012
+GFORTRAN module version '6' created from timing.f90 on Sun May  6 11:30:26 2012
 MD5:0bbeeb30fe13dc8d6cc4d2beeb7abec6 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () () ()

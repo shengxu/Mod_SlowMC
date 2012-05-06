@@ -47,7 +47,7 @@ module global
 !  real(8) :: emax = 20.0_8
 
   ! kT value base on 300K
-  real(8) :: kT = 8.6173324e-5_8*300*1.0e-6_8
+  real(8) :: kT != 8.6173324e-5_8*300*1.0e-6_8
 
   ! set nu value
   real(8) :: nubar = 2.455_8
@@ -68,6 +68,8 @@ module global
   real(8) :: col_kinf_mean_2 = 0.0_8
   real(8) :: col_kinf_std_2  = 0.0_8
   real(8) :: reaction_tally(3)
+
+  character(len=255)  :: in_out_filename
 
 contains
 
