@@ -359,7 +359,7 @@ contains
     ! check for thermal scattering
     if (neut%E < 4e-6_8 .and. mat(region)%isotopes(isoidx)%thermal) then
 
-      kT = K_BOLTZMANN*1.e6_8*T
+      kT = K_BOLTZMANN*T
 
       ! get index in cdf
       idx = ceiling(rn/mat(region)%isotopes(isoidx)%thermal_lib%cdf_width)

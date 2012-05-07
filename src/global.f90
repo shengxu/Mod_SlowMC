@@ -64,10 +64,10 @@ module global
   real(8) :: col_kinf_mean = 0.0_8
   real(8) :: col_kinf_std  = 0.0_8
 
-! added by S. Xu (May. 2012)
-  real(8) :: col_kinf_mean_2 = 0.0_8
-  real(8) :: col_kinf_std_2  = 0.0_8
-  real(8) :: reaction_tally(3)
+!  !added by S. Xu (May. 2012)
+!  real(8) :: col_kinf_mean_2 = 0.0_8
+!  real(8) :: col_kinf_std_2  = 0.0_8
+!  real(8) :: reaction_tally(3)
 
   character(len=255)  :: in_out_filename
 
@@ -325,13 +325,13 @@ contains
     col_kinf_mean = sum(tal(n_tallies)%mean)
     col_kinf_std  = sum(tal(n_tallies)%std)
 
-! Added by S. Xu (May. 2012)
-    col_kinf_mean_2 = sum(tal(6)%mean)
-    col_kinf_std_2  = sum(tal(6)%std)
-
-reaction_tally(1) = sum(tal(2)%mean)
-reaction_tally(2) = sum(tal(3)%mean)
-reaction_tally(3) = sum(tal(4)%mean)
+! !Added by S. Xu (May. 2012)
+!    col_kinf_mean_2 = sum(tal(6)%mean)
+!    col_kinf_std_2  = sum(tal(6)%std)
+!
+!    reaction_tally(1) = sum(tal(2)%mean)
+!    reaction_tally(2) = sum(tal(3)%mean)
+!    reaction_tally(3) = sum(tal(4)%mean)
 
   end subroutine finalize_tallies
 
