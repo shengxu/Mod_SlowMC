@@ -64,8 +64,8 @@ contains
   subroutine write_output()
 
     use global, only: time_init,time_run,tal,n_tallies,ana_kinf_mean,          &
-   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, col_kinf_mean_2, &
-   &                  col_kinf_std_2, reaction_tally, in_out_filename
+   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, in_out_filename ! &
+   !&                  ,col_kinf_mean_2, col_kinf_std_2, reaction_tally, 
     use hdf5
 
     ! local variables

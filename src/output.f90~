@@ -94,10 +94,10 @@ contains
     write(*,101) 'k-inf (analog):',ana_kinf_mean,ana_kinf_std
     write(*,101) 'k-inf (coll):',col_kinf_mean,col_kinf_std
     
-write(*,101) 'k-inf (nufission):',col_kinf_mean_2,col_kinf_std_2
-!write(*,*) 'total reaction:', reaction_tally(1)
-!write(*,*) 'absorption:', reaction_tally(2)
-!write(*,*) 'scattering:', reaction_tally(3)
+!    write(*,101) 'k-inf (nufission):',col_kinf_mean_2,col_kinf_std_2
+!    write(*,*) 'total reaction:', reaction_tally(1)
+!    write(*,*) 'absorption:', reaction_tally(2)
+!    write(*,*) 'scattering:', reaction_tally(3)
 
     write(*,*)
 
