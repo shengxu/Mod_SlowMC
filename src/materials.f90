@@ -53,9 +53,9 @@ module materials
     real(8), allocatable  :: engy_capt(:)  ! energy grid for capture xs
     real(8), allocatable  :: engy_scat(:)  ! energy grid for scattering xs
     real(8), allocatable  :: engy_fiss(:)  ! energy grid for fission xs
-    real(8)               :: capt_size     ! size of xs_capt
-    real(8)               :: scat_size     ! size of xs_scat
-    real(8)               :: fiss_size     ! size of xs_fiss
+    integer               :: capt_size     ! size of xs_capt
+    integer               :: scat_size     ! size of xs_scat
+    integer               :: fiss_size     ! size of xs_fiss
     logical               :: doppler ! indicte whether doppler braodening is performed
 
   end type iso_type
@@ -221,6 +221,7 @@ contains
 !    ! keep the size
 !    this%isotopes(this%curr_iso)%npts = vecsize
 
+print *, this%curr_iso
     ! added by S. Xu (Apr. 2012)
     ! zero out energy grid vectors
     this%isotopes(this%curr_iso)%engy_scat = 0.0_8

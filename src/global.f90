@@ -251,6 +251,7 @@ contains
 ! Modified by S. Xu
 !            fact = mat(neut%region)%isotopes(tal(i)%isotope)%xs_capt(eidx)
             fact = mat(neut%region)%isotopes(tal(i)%isotope)%xs_capt_brdn
+
           else
             cycle
           end if 
@@ -297,7 +298,7 @@ contains
 
   subroutine finalize_tallies()
 
-    use tally, only: calculate_statistics
+    use tally, only: calculate_statistics, write_res_intg
 
     ! local variables
     integer :: i ! loop counter
@@ -316,6 +317,10 @@ contains
         end do
       end if
 
+      ! write resonance integral
+      if (tal(i)%react_type == 8) then
+        call write_res_intg(tal(i),"res_"//trim(in_out_filename)//".out")
+      end if
     end do
 
     ! compute k_inf

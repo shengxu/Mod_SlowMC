@@ -47,7 +47,7 @@ module global
 !  real(8) :: emax = 20.0_8
 
   ! kT value base on 300K
-  real(8) :: kT = 8.6173324e-5_8*300*1.0e-6_8
+  real(8) :: kT != 8.6173324e-5_8*300*1.0e-6_8
 
   ! set nu value
   real(8) :: nubar = 2.455_8
@@ -64,10 +64,10 @@ module global
   real(8) :: col_kinf_mean = 0.0_8
   real(8) :: col_kinf_std  = 0.0_8
 
-! added by S. Xu (May. 2012)
-  real(8) :: col_kinf_mean_2 = 0.0_8
-  real(8) :: col_kinf_std_2  = 0.0_8
-  real(8) :: reaction_tally(3)
+!  !added by S. Xu (May. 2012)
+!  real(8) :: col_kinf_mean_2 = 0.0_8
+!  real(8) :: col_kinf_std_2  = 0.0_8
+!  real(8) :: reaction_tally(3)
 
   character(len=255)  :: in_out_filename
 
@@ -251,6 +251,8 @@ contains
 ! Modified by S. Xu
 !            fact = mat(neut%region)%isotopes(tal(i)%isotope)%xs_capt(eidx)
             fact = mat(neut%region)%isotopes(tal(i)%isotope)%xs_capt_brdn
+
+print *, tal(i)%isotope, mat(neut%region)%isotopes(tal(i)%isotope)%name
           else
             cycle
           end if 
@@ -297,7 +299,7 @@ contains
 
   subroutine finalize_tallies()
 
-    use tally, only: calculate_statistics
+    use tally, only: calculate_statistics, write_res_intg
 
     ! local variables
     integer :: i ! loop counter
@@ -316,6 +318,10 @@ contains
         end do
       end if
 
+      ! write resonance integral
+      if (tal(i)%react_type == 8) then
+        call write_res_intg(tal(i),"res_"//trim(in_out_filename)//".out")
+      end if
     end do
 
     ! compute k_inf
@@ -325,13 +331,13 @@ contains
     col_kinf_mean = sum(tal(n_tallies)%mean)
     col_kinf_std  = sum(tal(n_tallies)%std)
 
-! Added by S. Xu (May. 2012)
-    col_kinf_mean_2 = sum(tal(6)%mean)
-    col_kinf_std_2  = sum(tal(6)%std)
-
-reaction_tally(1) = sum(tal(2)%mean)
-reaction_tally(2) = sum(tal(3)%mean)
-reaction_tally(3) = sum(tal(4)%mean)
+! !Added by S. Xu (May. 2012)
+!    col_kinf_mean_2 = sum(tal(6)%mean)
+!    col_kinf_std_2  = sum(tal(6)%std)
+!
+!    reaction_tally(1) = sum(tal(2)%mean)
+!    reaction_tally(2) = sum(tal(3)%mean)
+!    reaction_tally(3) = sum(tal(4)%mean)
 
   end subroutine finalize_tallies
 

@@ -52,28 +52,51 @@ contains
     integer                        :: isotope=0    ! isotope for micro mult
     integer                        :: region=0     ! region to tally micros
     real(8), allocatable           :: Ebins(:)     ! tally energy bins
+    integer                        :: nbins        ! number of energy bins
     logical                        :: dv           ! divide tally by volumes 
     ! added by S. Xu
     logical               :: doppler ! indicte whether doppler braodening is performed
     integer               :: n_arg   ! number of input argument
+    character(len=255)    :: arg_str ! input arguments
+    character             :: nhist_1digt, nhist_power ! convert nhistories to string          
+    logical               :: nhist_from_cmdline ! check whether nhistories is input from command line
 
 ! Modified by S. Xu (May 2012)
 !    ! check for input file
 !    filename = "input.xml"
-    n_arg = command_argument_count()
-    if (n_arg == 0) then
-      filename = "input.xml"
-    else if(n_arg == 1) then
-      call get_command_argument(1, filename)
-    else
-      write(*,*) "Too many input argument!"
-    end if
+    filename = "input.xml"
+    nhist_from_cmdline = .false.
+    i = 1
+    do 
+      call get_command_argument(i, arg_str)
+      if (len_trim(arg_str) == 0) exit
+      select case(i)
+        case(1)
+          filename = trim(arg_str)
+        case(2)
+          read(arg_str, *) nhistories
+          nhist_from_cmdline = .true.
+        case default
+          print *, 'Input argument should be less than or equal to 2'
+      end select
+      i = i + 1
+    end do
+      
+!    n_arg = command_argument_count()
+!    if (n_arg == 0) then
+!      filename = "input.xml"
+!    else if(n_arg == 1) then
+!      call get_command_argument(1, filename)
+!    else if(n_arg == 2) then
+!      call get_command_argument(2, arg_str)
+!      read(arg_str, *) nhistories
+!      nhist_from_cmdline = .true.
+!    else
+!      write(*,*) "Too many input argument!"
+!    end if
     
     write(*,*) filename
-
-    in_out_filename = filename(1:(len(trim(filename))-4))
-
-!    write(*,*) in_out_filename
+    
 
     inquire(FILE=trim(filename), EXIST=file_exists)
     if (.not. file_exists) then
@@ -90,7 +113,19 @@ contains
     call read_xml_file_input_t(trim(filename))
 
     ! read in settings
-    nhistories = settings_%histories
+    if (.not. nhist_from_cmdline) then
+      nhistories = settings_%histories
+    end if
+
+    write(*,*) "number of history:", nhistories
+
+    write(nhist_power, '(i1)') int(log10(dble(nhistories)))
+    write(nhist_1digt, '(i1)') int(nhistories/10**log10(dble(nhistories)))
+!print *, nhist_1digt, nhist_power
+    in_out_filename = filename(1:(len(trim(filename))-4))//'_'//nhist_1digt//'e'//nhist_power
+
+!    write(*,*) in_out_filename
+
     seed = settings_%seed
     source_type = settings_%source_type
     
@@ -217,13 +252,14 @@ contains
       end select
 
       ! preallocate Ebins
-      if(.not. allocated(Ebins)) allocate(Ebins(size(tallies_%tally(i)%Ebins)))
+      nbins = size(tallies_%tally(i)%Ebins) - 1
+      if(.not. allocated(Ebins)) allocate(Ebins(nbins+1))
 
       ! set Ebins
       Ebins = tallies_%tally(i)%Ebins
 
       ! set up user-defined tallies
-      call set_user_tally(tal(i),Ebins,size(Ebins),react_type,isotope,region,  &
+      call set_user_tally(tal(i),Ebins,nbins,react_type,isotope,region,  &
      &                    n_materials,dv)
 
       ! deallocate Ebins
