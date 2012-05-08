@@ -1,5 +1,5 @@
-GFORTRAN module version '6' created from global.f90 on Mon May  7 22:10:50 2012
-MD5:979f09508009e8f2148b66c2211fb079 -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '6' created from global.f90 on Mon May  7 22:43:23 2012
+MD5:88ffe9c3ea2d14db74abbe996019a10c -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -84,8 +84,8 @@ UNKNOWN-ACCESS ())) PUBLIC (() () () ()) () 0 0 1686055)
 UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 FUNCTION ELEMENTAL PURE)
 (REAL 8 0 0 REAL ()) 0 0 () () 33 () () () 0 0)
 34 'add_to_tallies' 'global' 'add_to_tallies' 1 ((PROCEDURE
-UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE) (UNKNOWN 0 0 0
-UNKNOWN ()) 0 0 () () 0 () () () 0 0)
+UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (
+UNKNOWN 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
 35 'allocate_problem' 'global' 'allocate_problem' 1 ((PROCEDURE
 UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE) (UNKNOWN 0 0 0
 UNKNOWN ()) 0 0 () () 0 () () () 0 0)

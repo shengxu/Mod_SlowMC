@@ -252,7 +252,6 @@ contains
 !            fact = mat(neut%region)%isotopes(tal(i)%isotope)%xs_capt(eidx)
             fact = mat(neut%region)%isotopes(tal(i)%isotope)%xs_capt_brdn
 
-print *, tal(i)%isotope, mat(neut%region)%isotopes(tal(i)%isotope)%name
           else
             cycle
           end if 
