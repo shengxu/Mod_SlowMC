@@ -104,6 +104,16 @@
  data:            2
    ><
    ><
+ XML_GET - tag found: component
+ XML_GET - number of attributes:           2
+ XML_GET - number of data lines:           2
+ tag: component                                                                       
+ attribs:            2
+   name = res_intg
+   type = logical
+ data:            2
+   ><
+   ><
  XML_GET - number of attributes:           0
  XML_GET - number of data lines:           3
  tag: typedef                                                                         

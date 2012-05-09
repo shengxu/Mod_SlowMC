@@ -221,12 +221,10 @@ contains
 !    ! keep the size
 !    this%isotopes(this%curr_iso)%npts = vecsize
 
-! print *, this%curr_iso
+print *, this%curr_iso
     ! added by S. Xu (Apr. 2012)
     ! zero out energy grid vectors
-do i=1,this%isotopes(this%curr_iso)%scat_size
-    this%isotopes(this%curr_iso)%engy_scat(i) = 0.0_8
-end do
+    this%isotopes(this%curr_iso)%engy_scat = 0.0_8
     this%isotopes(this%curr_iso)%engy_capt = 0.0_8
     this%isotopes(this%curr_iso)%engy_fiss = 0.0_8
 
@@ -397,8 +395,6 @@ end do
     use constants, only: M_NEUT
     use parameters, only: vmin
     
-
-
     ! formal variables
     type(material_type),target :: this ! a material
     real(8)                    :: E    ! neutron energy
@@ -406,31 +402,47 @@ end do
     real(8) :: E_brdn
     integer :: ind ! energy interval
     logical :: stat 
-    integer :: i  ! loop counter
+    integer :: i, j  ! loop counter
+    integer :: n_sample=1
     real(8) :: v
     real(8) :: v_brdn
+    real(8) :: xs_capt_tmp,xs_scat_tmp,xs_fiss_tmp
 !    real    :: dE ! for debug
 
     do i = 1, this%nisotopes
       if (this%isotopes(i)%doppler) then
 
         v = sqrt(2._8*E/M_NEUT)
+        this%isotopes(i)%xs_capt_brdn = 0.0_8
+        this%isotopes(i)%xs_scat_brdn = 0.0_8
+        this%isotopes(i)%xs_fiss_brdn = 0.0_8
+
+        do j=1,n_sample
         ! sample the relative kinetic energy
-        call energy_doppler_broadened(v, this%isotopes(i)%alpha_MB, v_brdn)
-        E_brdn = 0.5_8*M_NEUT*v_brdn**2
+          call energy_doppler_broadened(v, this%isotopes(i)%alpha_MB, v_brdn)
+          E_brdn = 0.5_8*M_NEUT*v_brdn**2
 
-        ! broaden xs
-        call LinInterp(this%isotopes(i)%engy_capt, this%isotopes(i)%xs_capt, &
-             & E_brdn, this%isotopes(i)%xs_capt_brdn)
-        this%isotopes(i)%xs_capt_brdn = v_brdn/v*this%isotopes(i)%xs_capt_brdn
+          ! broaden xs
+          call LinInterp(this%isotopes(i)%engy_capt, this%isotopes(i)%xs_capt, &
+               & E_brdn, xs_capt_tmp)
+          this%isotopes(i)%xs_capt_brdn = this%isotopes(i)%xs_capt_brdn+v_brdn/v*xs_capt_tmp
 
-        call LinInterp(this%isotopes(i)%engy_scat, this%isotopes(i)%xs_scat, &
-             & E_brdn, this%isotopes(i)%xs_scat_brdn)
-        this%isotopes(i)%xs_scat_brdn = v_brdn/v*this%isotopes(i)%xs_scat_brdn
+          call LinInterp(this%isotopes(i)%engy_scat, this%isotopes(i)%xs_scat, &
+               & E_brdn, xs_scat_tmp)
+          this%isotopes(i)%xs_scat_brdn = this%isotopes(i)%xs_scat_brdn+v_brdn/v*xs_scat_tmp
 
-        call LinInterp(this%isotopes(i)%engy_fiss, this%isotopes(i)%xs_fiss, &
-             & E_brdn, this%isotopes(i)%xs_fiss_brdn)
-        this%isotopes(i)%xs_fiss_brdn = v_brdn/v*this%isotopes(i)%xs_fiss_brdn
+          call LinInterp(this%isotopes(i)%engy_fiss, this%isotopes(i)%xs_fiss, &
+               & E_brdn, xs_fiss_tmp)
+          this%isotopes(i)%xs_fiss_brdn = this%isotopes(i)%xs_fiss_brdn+v_brdn/v*xs_fiss_tmp
+        end do
+
+        this%isotopes(i)%xs_capt_brdn = this%isotopes(i)%xs_capt_brdn/dble(n_sample)
+        this%isotopes(i)%xs_scat_brdn = this%isotopes(i)%xs_scat_brdn/dble(n_sample)
+        this%isotopes(i)%xs_fiss_brdn = this%isotopes(i)%xs_fiss_brdn/dble(n_sample)
+
+!        write(997, '(es19.8e3, 3x, es19.8e3)')  E, this%isotopes(i)%xs_capt_brdn
+!        write(998, '(es19.8e3, 3x, es19.8e3)')  E, this%isotopes(i)%xs_scat_brdn
+!        write(999, '(es19.8e3, 3x, es19.8e3)')  E, this%isotopes(i)%xs_fiss_brdn
 
       else
 

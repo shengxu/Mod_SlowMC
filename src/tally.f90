@@ -11,7 +11,7 @@ module tally
   implicit none
   private
   public :: set_spectrum_tally,add_to_tally,bank_tally,deallocate_tally,       &
- &          set_user_tally,calculate_statistics,set_kinf_tally,write_res_intg
+ &          set_user_tally,calculate_statistics,set_kinf_tally
 
   type, public :: tally_type
 
@@ -259,28 +259,6 @@ contains
     this%std = sqrt((this%sum_sq/dble(n) - this%mean**2)/dble(n-1))
 
   end subroutine calculate_statistics
-
-!===============================================================================
-! WRITE_RES_INTG
-!> @brief routine to output resonance integral (or micro-capture tally)
-!===============================================================================
-
-  subroutine write_res_intg(this,filename_res)
-
-    ! formal variables
-    type(tally_type) :: this ! a tally
-    character(len=255) :: filename_res
-    integer          :: i
-
-    open(111,file=trim(filename_res), status="unknown")
-
-    do i=1,this%nbins
-      write(111,'(es9.2e2, " --", es9.2e2, 5x, f10.5, 1x, "+/-", 1x, f10.5)') &
-            & this%E(i),this%E(i+1),this%mean(i,this%region),this%std(i,this%region)
-    end do
-
-    close(111)
-  end subroutine write_res_intg
 
 
 !===============================================================================

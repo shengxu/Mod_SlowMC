@@ -40,6 +40,9 @@ module global
   real(8) :: Dancoff     ! lattice Dancoff factor (C)
   real(8) :: radius      ! radius of fuel pin
 !  real(8) :: T           ! temperature, added by S. Xu
+  logical :: res_intg    ! indicator for resonance integral
+  integer :: res_intg_inf(2)=0 ! store the index for micro_capture and flux tally
+  real(8), allocatable :: res_intg_rec(:,:) ! to store resonance integral (with variance)
 
 ! commented out by S. Xu (for compile dependency problem)
 !  ! set max and min energy
@@ -298,7 +301,7 @@ contains
 
   subroutine finalize_tallies()
 
-    use tally, only: calculate_statistics, write_res_intg
+    use tally, only: calculate_statistics
 
     ! local variables
     integer :: i ! loop counter
@@ -317,10 +320,6 @@ contains
         end do
       end if
 
-      ! write resonance integral
-      if (tal(i)%react_type == 8) then
-        call write_res_intg(tal(i),"res_"//trim(in_out_filename)//".out")
-      end if
     end do
 
     ! compute k_inf
@@ -339,5 +338,59 @@ contains
 !    reaction_tally(3) = sum(tal(4)%mean)
 
   end subroutine finalize_tallies
+
+
+!===============================================================================
+! COMPUTE_RES_INTG
+!> @brief routine that computes resonance integrals
+!===============================================================================
+
+  subroutine compute_res_intg()
+
+    use tally, only: calculate_statistics
+
+    ! local variables
+    integer :: i ! loop counter
+    integer :: this_region
+    integer :: n_bin
+
+    if (tal(res_intg_inf(1))%nbins == tal(res_intg_inf(2))%nbins) then
+
+      n_bin = tal(res_intg_inf(1))%nbins
+      allocate(res_intg_rec(n_bin, 2))
+      this_region = tal(res_intg_inf(1))%region
+
+      res_intg_rec(:,1) = log(tal(res_intg_inf(1))%E(2:(n_bin+1))/tal(res_intg_inf(1))%E(1:n_bin)) * &
+   &                    tal(res_intg_inf(1))%mean(:,this_region)/tal(res_intg_inf(2))%mean(:,this_region)
+      res_intg_rec(:,2) = res_intg_rec(:,1)* &
+   &          (tal(res_intg_inf(1))%std(:,this_region)/tal(res_intg_inf(1))%mean(:,this_region)+  &
+   &           tal(res_intg_inf(2))%std(:,this_region)/tal(res_intg_inf(2))%mean(:,this_region))
+      
+    else
+
+      write(*,*) "For computing resonance integral: Energy bins of flux and micro capture are not the same!"   
+      stop
+
+    end if
+
+  end subroutine compute_res_intg
+
+
+!===============================================================================
+! WRITE_RES_INTG
+!> @brief routine to output resonance integral
+!===============================================================================
+
+  subroutine write_res_intg(file_unit)
+
+    integer          :: file_unit
+    integer          :: i
+
+      do i = 1,size(res_intg_rec,1)
+        write(file_unit,'(es9.2e2, " --", es9.2e2, 5x, f10.5, 1x, "+/-", 1x, f10.5)') &
+            & tal(res_intg_inf(1))%E(i),tal(res_intg_inf(1))%E(i+1),res_intg_rec(i,1),res_intg_rec(i,2)
+      end do
+
+  end subroutine write_res_intg
 
 end module global

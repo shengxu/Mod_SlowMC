@@ -403,7 +403,7 @@ print *, this%curr_iso
     integer :: ind ! energy interval
     logical :: stat 
     integer :: i, j  ! loop counter
-    integer :: n_sample=10
+    integer :: n_sample=2
     real(8) :: v
     real(8) :: v_brdn
     real(8) :: xs_capt_tmp,xs_scat_tmp,xs_fiss_tmp

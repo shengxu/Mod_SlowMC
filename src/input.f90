@@ -26,7 +26,7 @@ contains
 
     use global,           only: nhistories,seed,source_type,mat, & !emin,emax,     & ! commented out by S. Xu
    &                            allocate_problem,tal,n_tallies,n_materials,    &
-   &                            res_iso,Dancoff,radius, in_out_filename
+   &                            res_iso,Dancoff,radius, in_out_filename,res_intg,res_intg_inf
     use materials,        only: setup_material,load_source,load_isotope
     use tally,            only: set_user_tally,set_spectrum_tally,             &
    &                            set_kinf_tally
@@ -132,6 +132,9 @@ contains
     ! Added by S. Xu (Apr. 2012) for doppler broadening
     T = settings_%temperature
 
+    ! for resonance integral
+    res_intg = settings_%res_intg
+
     ! get size of materials
     n_materials = size(materials_%material)
 
@@ -229,6 +232,11 @@ contains
       select case(trim(tallies_%tally(i)%type))
         case('flux')
           react_type = 0
+          ! for resonance integral
+          if (res_intg) then
+            res_intg_inf(2) = i
+          end if
+
         case('total')
           react_type = 1
         case('absorption')
@@ -247,6 +255,10 @@ contains
           react_type = 8
           isotope = tallies_%tally(i)%isotope
           region = tallies_%tally(i)%region
+          ! for resonance integral
+          if (res_intg) then
+            res_intg_inf(1) = i
+          end if
         case DEFAULT
           react_type = 0
       end select

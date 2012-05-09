@@ -39,6 +39,9 @@ program main
   ! Added by S. Xu for debug  
   open(10, file='Debug_inf.out', status='unknown')
   open(11, file='Tally_inf.out', status='unknown')
+  open(997, file="./sampled_xs/capt.out", status='unknown')
+  open(998, file="./sampled_xs/scat.out", status='unknown')
+  open(999, file="./sampled_xs/fiss.out", status='unknown')
 
   ! initialize problem
   call initialize()
@@ -52,6 +55,9 @@ program main
   ! Added by S. Xu for debug 
   close(10)
   close(11)
+  close(997)
+  close(998)
+  close(999)
 
   ! terminate program
   stop
@@ -68,7 +74,7 @@ contains
     use hdf5
 
     ! added by S. Xu
-    use constants,        only: emin,emax
+    use parameters,        only: emin,emax
 
     use global,    only: seed,allocate_problem,mat,tal,time_init !,    &
 !   &                     compute_macro_cross_sections  ! commented out by S. Xu
@@ -113,7 +119,7 @@ contains
   subroutine run_problem()
 
     ! added by S. Xu
-    use constants,        only: emin
+    use parameters,        only: emin
 
     use global,    only: nhistories,mat,neut, bank_tallies,time_run, &
         &  compute_macro_cross_sections, doppler_broaden   ! last two added by S. Xu
@@ -185,7 +191,7 @@ contains
 
   subroutine finalize()
 
-    use global, only: finalize_tallies,deallocate_problem
+    use global, only: finalize_tallies,deallocate_problem, res_ing, compute_res_intg
     use hdf5
     use output, only: write_output
 
@@ -194,6 +200,9 @@ contains
 
     ! calculate statistics on tallies
     call finalize_tallies()
+    
+    ! compute resonance integral
+    call compute_res_intg()
 
     ! write output
     call write_output()

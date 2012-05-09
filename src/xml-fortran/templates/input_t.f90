@@ -16,6 +16,7 @@ type settings_xml
    character(len=255)                                :: res_iso
    real(kind=kind(1.0d0))                          :: radius
    real(kind=kind(1.0d0))                          :: temperature
+   logical                                         :: res_intg
 end type settings_xml
 
 type nuclide_xml
@@ -104,6 +105,7 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
    logical                                         :: has_res_iso
    logical                                         :: has_radius
    logical                                         :: has_temperature
+   logical                                         :: has_res_intg
    has_histories                        = .false.
    has_seed                             = .false.
    has_source_type                      = .false.
@@ -112,6 +114,7 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
    has_res_iso                          = .false.
    has_radius                           = .false.
    has_temperature                      = .false.
+   has_res_intg                         = .false.
    call init_xml_type_settings_xml(dvar)
    has_dvar = .true.
    error  = .false.
@@ -192,6 +195,10 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
          call read_xml_double( &
             info, tag, endtag, attribs, noattribs, data, nodata, &
             dvar%temperature, has_temperature )
+      case('res_intg')
+         call read_xml_logical( &
+            info, tag, endtag, attribs, noattribs, data, nodata, &
+            dvar%res_intg, has_res_intg )
       case ('comment', '!--')
          ! Simply ignore
       case default
@@ -236,6 +243,10 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
       has_dvar = .false.
       call xml_report_errors(info, 'Missing data on temperature')
    endif
+   if ( .not. has_res_intg ) then
+      has_dvar = .false.
+      call xml_report_errors(info, 'Missing data on res_intg')
+   endif
 end subroutine read_xml_type_settings_xml
 subroutine init_xml_type_settings_xml_array( dvar )
    type(settings_xml), dimension(:), pointer :: dvar
@@ -277,6 +288,7 @@ subroutine write_xml_type_settings_xml( &
    call write_to_xml_word( info, 'res_iso', indent+3, dvar%res_iso)
    call write_to_xml_double( info, 'radius', indent+3, dvar%radius)
    call write_to_xml_double( info, 'temperature', indent+3, dvar%temperature)
+   call write_to_xml_logical( info, 'res_intg', indent+3, dvar%res_intg)
    write(info%lun,'(4a)') indentation(1:min(indent,100)), &
        '</' //trim(tag) // '>'
 end subroutine write_xml_type_settings_xml

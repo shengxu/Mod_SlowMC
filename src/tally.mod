@@ -1,5 +1,5 @@
-GFORTRAN module version '6' created from tally.f90 on Tue May  8 15:00:27 2012
-MD5:9e55d107ef7f72e594ea8f5566e92996 -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '6' created from tally.f90 on Wed May  9 00:00:04 2012
+MD5:fb92fd7b88dbf62f332ed2874e1ac284 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () () ()
 () () ())
@@ -70,9 +70,6 @@ UNKNOWN-ACCESS ()) (56 'dv' (LOGICAL 4 0 0 LOGICAL ()) () (UNKNOWN-FL
 UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0) UNKNOWN-ACCESS (
 CONSTANT (LOGICAL 4 0 0 LOGICAL ()) 0 0))) PUBLIC (() () () ()) () 0 0
 94180672)
-57 'write_res_intg' 'tally' 'write_res_intg' 1 ((PROCEDURE
-UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE) (UNKNOWN 0 0 0
-UNKNOWN ()) 58 0 (59 60) () 0 () () () 0 0)
 33 'this' '' 'this' 32 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 UNKNOWN 0 0 DUMMY) (DERIVED 41 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
 34 'ebins' '' 'ebins' 32 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
@@ -126,19 +123,14 @@ UNKNOWN 0 0 DUMMY) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
 UNKNOWN 0 0 DUMMY) (INTEGER 4 0 0 INTEGER ()) 0 0 () () 0 () () () 0 0)
 11 'this' '' 'this' 10 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 UNKNOWN 0 0 DUMMY) (DERIVED 41 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
-59 'this' '' 'this' 58 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
+18 'this' '' 'this' 17 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 UNKNOWN 0 0 DUMMY) (DERIVED 41 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
 14 'this' '' 'this' 13 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 UNKNOWN 0 0 DUMMY) (DERIVED 41 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
 15 'n' '' 'n' 13 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN
 0 0 DUMMY) (INTEGER 4 0 0 INTEGER ()) 0 0 () () 0 () () () 0 0)
-60 'filename_res' '' 'filename_res' 58 ((VARIABLE UNKNOWN-INTENT
-UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (CHARACTER 1 0 0 CHARACTER ((
-CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '255'))) 0 0 () () 0 () () () 0 0)
-18 'this' '' 'this' 17 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
-UNKNOWN 0 0 DUMMY) (DERIVED 41 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
 )
 
 ('add_to_tally' 0 2 'bank_tally' 0 9 'calculate_statistics' 0 12
 'deallocate_tally' 0 16 'set_kinf_tally' 0 19 'set_spectrum_tally' 0 25
-'set_user_tally' 0 31 'tally_type' 0 41 'write_res_intg' 0 57)
+'set_user_tally' 0 31 'tally_type' 0 41)

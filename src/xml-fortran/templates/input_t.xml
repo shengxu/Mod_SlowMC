@@ -12,6 +12,7 @@
     <component name="res_iso" type="word" length="255" />
     <component name="radius" type="double" />
     <component name="temperature" type="double" />
+    <component name="res_intg" type="logical" />
   </typedef>
 
   <typedef name="nuclide_xml">

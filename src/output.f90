@@ -64,7 +64,8 @@ contains
   subroutine write_output()
 
     use global, only: time_init,time_run,tal,n_tallies,ana_kinf_mean,          &
-   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, in_out_filename ! &
+   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, in_out_filename, &
+   &                   tal,res_intg,res_intg_rec, write_res_intg
    !&                  ,col_kinf_mean_2, col_kinf_std_2, reaction_tally, 
     use hdf5
 
@@ -152,13 +153,20 @@ contains
       end if
 
       ! close the group
-      call h5gclose_f(group_id,error)
+      call h5gclose_f(group_id,error)    
 
     end do
 
     ! close the file
     call h5fclose_f(hdfile,error)
 
+    ! write out resonance integral information
+    if (res_intg) then
+      open(111,file='res_'//trim(in_out_filename)//'.out', status="unknown")
+      call write_res_intg(111)
+      close(111)
+    end if
+    
   end subroutine write_output
 
 !===============================================================================

@@ -191,7 +191,7 @@ contains
 
   subroutine finalize()
 
-    use global, only: finalize_tallies,deallocate_problem
+    use global, only: finalize_tallies,deallocate_problem, res_intg, compute_res_intg
     use hdf5
     use output, only: write_output
 
@@ -200,6 +200,11 @@ contains
 
     ! calculate statistics on tallies
     call finalize_tallies()
+    
+    ! compute resonance integral
+    if (res_intg) then
+      call compute_res_intg()
+    end if
 
     ! write output
     call write_output()
