@@ -64,7 +64,7 @@ contains
   subroutine write_output()
 
     use global, only: time_init,time_run,tal,n_tallies,ana_kinf_mean,          &
-   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, in_out_filename, &
+   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, output_filename, output_path, &
    &                   tal,res_intg,res_intg_rec, write_res_intg
    !&                  ,col_kinf_mean_2, col_kinf_std_2, reaction_tally, 
     use hdf5
@@ -100,14 +100,30 @@ contains
 !    write(*,*) 'absorption:', reaction_tally(2)
 !    write(*,*) 'scattering:', reaction_tally(3)
 
-    write(*,*)
+    write(*,'(/A,A,/)') "Output files can be found in: ", output_path
 
     ! format for kinf write statements
 101 format(1X,A,T25,F7.5,1X,'+/-',1X,F7.5)
 
+!print *, 'one output file = ', trim(output_path)//'log_'//trim(output_filename)//'.out'
+    ! rewrite results to outputfile
+    open(112,file=trim(output_path)//'log_'//trim(output_filename)//'.out', status="unknown")
+        ! write results header
+        write(112,'(/A,/,A,/)') "Results","-----------------------"
+
+        ! write timing information
+        write(112,100) "Initialization time:",time_init%elapsed
+        write(112,100) "Transport time:",time_run%elapsed
+        write(112,*)
+
+        ! write k-inf information
+        write(112,101) 'k-inf (analog):',ana_kinf_mean,ana_kinf_std
+        write(112,101) 'k-inf (coll):',col_kinf_mean,col_kinf_std    
+    close(112)
+
     ! open up output hdf5 file
 !    call h5fcreate_f("output.h5",H5F_ACC_TRUNC_F,hdfile,error)
-    call h5fcreate_f(trim(in_out_filename)//"_out.h5",H5F_ACC_TRUNC_F,hdfile,error)
+    call h5fcreate_f(trim(output_path)//trim(output_filename)//"_out.h5",H5F_ACC_TRUNC_F,hdfile,error)
 
     ! begin loop around tallies to write out
     do i = 1,n_tallies
@@ -162,7 +178,7 @@ contains
 
     ! write out resonance integral information
     if (res_intg) then
-      open(111,file=trim(filename_res), status="unknown")
+      open(111,file=trim(output_path)//'res_'//trim(output_filename)//'.out', status="unknown")
       call write_res_intg(111)
       close(111)
     end if

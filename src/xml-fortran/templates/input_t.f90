@@ -12,6 +12,7 @@ type settings_xml
    integer                                         :: seed
    integer                                         :: source_type
    character(len=255)                                :: source_path
+   character(len=255)                                :: output_path
    real(kind=kind(1.0d0))                          :: Dancoff
    character(len=255)                                :: res_iso
    real(kind=kind(1.0d0))                          :: radius
@@ -101,6 +102,7 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
    logical                                         :: has_seed
    logical                                         :: has_source_type
    logical                                         :: has_source_path
+   logical                                         :: has_output_path
    logical                                         :: has_Dancoff
    logical                                         :: has_res_iso
    logical                                         :: has_radius
@@ -110,6 +112,7 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
    has_seed                             = .false.
    has_source_type                      = .false.
    has_source_path                      = .false.
+   has_output_path                      = .false.
    has_Dancoff                          = .false.
    has_res_iso                          = .false.
    has_radius                           = .false.
@@ -179,6 +182,10 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
          call read_xml_word( &
             info, tag, endtag, attribs, noattribs, data, nodata, &
             dvar%source_path, has_source_path )
+      case('output_path')
+         call read_xml_word( &
+            info, tag, endtag, attribs, noattribs, data, nodata, &
+            dvar%output_path, has_output_path )
       case('Dancoff')
          call read_xml_double( &
             info, tag, endtag, attribs, noattribs, data, nodata, &
@@ -226,6 +233,10 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
    if ( .not. has_source_path ) then
       has_dvar = .false.
       call xml_report_errors(info, 'Missing data on source_path')
+   endif
+   if ( .not. has_output_path ) then
+      has_dvar = .false.
+      call xml_report_errors(info, 'Missing data on output_path')
    endif
    if ( .not. has_Dancoff ) then
       has_dvar = .false.
@@ -284,6 +295,7 @@ subroutine write_xml_type_settings_xml( &
    call write_to_xml_integer( info, 'seed', indent+3, dvar%seed)
    call write_to_xml_integer( info, 'source_type', indent+3, dvar%source_type)
    call write_to_xml_word( info, 'source_path', indent+3, dvar%source_path)
+   call write_to_xml_word( info, 'output_path', indent+3, dvar%output_path)
    call write_to_xml_double( info, 'Dancoff', indent+3, dvar%Dancoff)
    call write_to_xml_word( info, 'res_iso', indent+3, dvar%res_iso)
    call write_to_xml_double( info, 'radius', indent+3, dvar%radius)

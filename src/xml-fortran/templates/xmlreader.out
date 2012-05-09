@@ -64,6 +64,17 @@
    ><
    ><
  XML_GET - tag found: component
+ XML_GET - number of attributes:           3
+ XML_GET - number of data lines:           2
+ tag: component                                                                       
+ attribs:            3
+   name = output_path
+   type = word
+   length = 255
+ data:            2
+   ><
+   ><
+ XML_GET - tag found: component
  XML_GET - number of attributes:           2
  XML_GET - number of data lines:           2
  tag: component                                                                       

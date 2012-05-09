@@ -37,11 +37,11 @@ program main
   implicit none
 
   ! Added by S. Xu for debug  
-  open(10, file='Debug_inf.out', status='unknown')
-  open(11, file='Tally_inf.out', status='unknown')
-  open(997, file="./sampled_xs/capt.out", status='unknown')
-  open(998, file="./sampled_xs/scat.out", status='unknown')
-  open(999, file="./sampled_xs/fiss.out", status='unknown')
+!  open(10, file='Debug_inf.out', status='unknown')
+!  open(11, file='Tally_inf.out', status='unknown')
+!  open(997, file="./sampled_xs/capt.out", status='unknown')
+!  open(998, file="./sampled_xs/scat.out", status='unknown')
+!  open(999, file="./sampled_xs/fiss.out", status='unknown')
 
   ! initialize problem
   call initialize()
@@ -53,11 +53,11 @@ program main
   call finalize()
   
   ! Added by S. Xu for debug 
-  close(10)
-  close(11)
-  close(997)
-  close(998)
-  close(999)
+!  close(10)
+!  close(11)
+!  close(997)
+!  close(998)
+!  close(999)
 
   ! terminate program
   stop

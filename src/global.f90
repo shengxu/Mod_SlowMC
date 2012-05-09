@@ -72,7 +72,8 @@ module global
 !  real(8) :: col_kinf_std_2  = 0.0_8
 !  real(8) :: reaction_tally(3)
 
-  character(len=255)  :: in_out_filename
+  character(len=255)  :: output_filename
+  character(len=255)  :: output_path
 
 contains
 

@@ -354,14 +354,12 @@ contains
     integer :: this_region
     integer :: n_bin
 
-print *, "nbin of micro_capture", tal(res_intg_inf(1))%nbins, "nbin of flux", tal(res_intg_inf(2))%nbins
     if (tal(res_intg_inf(1))%nbins == tal(res_intg_inf(2))%nbins) then
 
       n_bin = tal(res_intg_inf(1))%nbins
       allocate(res_intg_rec(n_bin, 2))
       this_region = tal(res_intg_inf(1))%region
-print *, tal(res_intg_inf(1))%E
-print *, tal(res_intg_inf(1))%react_type
+
       res_intg_rec(:,1) = log(tal(res_intg_inf(1))%E(2:(n_bin+1))/tal(res_intg_inf(1))%E(1:n_bin)) * &
    &                    tal(res_intg_inf(1))%mean(:,this_region)/tal(res_intg_inf(2))%mean(:,this_region)
       res_intg_rec(:,2) = res_intg_rec(:,1)* &

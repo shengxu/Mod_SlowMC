@@ -26,7 +26,8 @@ contains
 
     use global,           only: nhistories,seed,source_type,mat, & !emin,emax,     & ! commented out by S. Xu
    &                            allocate_problem,tal,n_tallies,n_materials,    &
-   &                            res_iso,Dancoff,radius, in_out_filename,res_intg,res_intg_inf
+   &                            res_iso,Dancoff,radius, output_filename, output_path, &
+   &                            res_intg,res_intg_inf
     use materials,        only: setup_material,load_source,load_isotope
     use tally,            only: set_user_tally,set_spectrum_tally,             &
    &                            set_kinf_tally
@@ -95,7 +96,7 @@ contains
 !      write(*,*) "Too many input argument!"
 !    end if
     
-    write(*,*) filename
+    write(*,'("Input file: ", A/)') trim(filename)
     
 
     inquire(FILE=trim(filename), EXIST=file_exists)
@@ -103,7 +104,7 @@ contains
       write(*,*) 'Cannot read input file!'
       stop
     else
-
+  
       ! tell user
       write(*,'(A/)') "Reading INPUT XML file..."
 
@@ -117,17 +118,31 @@ contains
       nhistories = settings_%histories
     end if
 
-    write(*,*) "number of history:", nhistories
+    write(*,'(A,i15/)') "number of history: ", nhistories
 
+    ! get the neutron histories to output file name
     write(nhist_power, '(i1)') int(log10(dble(nhistories)))
     write(nhist_1digt, '(i1)') int(nhistories/10**log10(dble(nhistories)))
 !print *, nhist_1digt, nhist_power
-    in_out_filename = filename(1:(len(trim(filename))-4))//'_'//nhist_1digt//'e'//nhist_power
+    output_filename = filename(1:(len(trim(filename))-4))//'_'//nhist_1digt//'e'//nhist_power
 
-!    write(*,*) in_out_filename
+!    write(*,*) trim(output_filename)
 
     seed = settings_%seed
     source_type = settings_%source_type
+
+    ! check output directory (not sure if there is better approach)
+!    output_path = './'
+!print *, 'output_path = ',output_path
+!print *, 'try another:',trim(settings_%output_path)//'/'
+    output_path = './'//trim(settings_%output_path)//'/'
+    write(*, '(A, A/)'), 'output_path = ', trim(output_path)
+    inquire(FILE=trim(output_path), EXIST=file_exists)
+    if (.not. file_exists) then
+      call system('mkdir '//trim(output_path))
+    end if
+
+    
     
     ! Added by S. Xu (Apr. 2012) for doppler broadening
     T = settings_%temperature
@@ -279,14 +294,15 @@ contains
 
     end do
 
+    ! load the source
+    call load_source(mat(1),source_type,settings_%source_path)
+
     ! set up spectrum tally
     call set_spectrum_tally(tal(n_tallies-1),emax,emin,n_materials)
 
     ! set up k_inf tally
     call set_kinf_tally(tal(n_tallies),emax,emin,n_materials)
 
-    ! load the source
-    call load_source(mat(1),source_type,settings_%source_path)
 
   end subroutine read_input
 
