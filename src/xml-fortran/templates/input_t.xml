@@ -5,6 +5,7 @@
 
   <typedef name="settings_xml">
     <component name="histories" type="integer" />
+    <component name="sample_per_xs" type="integer" />
     <component name="seed" type="integer" />
     <component name="source_type" type="integer" />
     <component name="source_path" type="word" length="255" />

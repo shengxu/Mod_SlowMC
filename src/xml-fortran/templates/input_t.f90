@@ -9,6 +9,7 @@ module xml_data_input_t
 
 type settings_xml
    integer                                         :: histories
+   integer                                         :: sample_per_xs
    integer                                         :: seed
    integer                                         :: source_type
    character(len=255)                                :: source_path
@@ -99,6 +100,7 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
    logical                                      :: endtag_org
    character(len=len(starttag))                 :: tag
    logical                                         :: has_histories
+   logical                                         :: has_sample_per_xs
    logical                                         :: has_seed
    logical                                         :: has_source_type
    logical                                         :: has_source_path
@@ -109,6 +111,7 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
    logical                                         :: has_temperature
    logical                                         :: has_res_intg
    has_histories                        = .false.
+   has_sample_per_xs                    = .false.
    has_seed                             = .false.
    has_source_type                      = .false.
    has_source_path                      = .false.
@@ -170,6 +173,10 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
          call read_xml_integer( &
             info, tag, endtag, attribs, noattribs, data, nodata, &
             dvar%histories, has_histories )
+      case('sample_per_xs')
+         call read_xml_integer( &
+            info, tag, endtag, attribs, noattribs, data, nodata, &
+            dvar%sample_per_xs, has_sample_per_xs )
       case('seed')
          call read_xml_integer( &
             info, tag, endtag, attribs, noattribs, data, nodata, &
@@ -221,6 +228,10 @@ subroutine read_xml_type_settings_xml( info, starttag, endtag, attribs, noattrib
    if ( .not. has_histories ) then
       has_dvar = .false.
       call xml_report_errors(info, 'Missing data on histories')
+   endif
+   if ( .not. has_sample_per_xs ) then
+      has_dvar = .false.
+      call xml_report_errors(info, 'Missing data on sample_per_xs')
    endif
    if ( .not. has_seed ) then
       has_dvar = .false.
@@ -292,6 +303,7 @@ subroutine write_xml_type_settings_xml( &
    write(info%lun, '(4a)' ) indentation(1:min(indent,100)),&
        '<',trim(tag), '>'
    call write_to_xml_integer( info, 'histories', indent+3, dvar%histories)
+   call write_to_xml_integer( info, 'sample_per_xs', indent+3, dvar%sample_per_xs)
    call write_to_xml_integer( info, 'seed', indent+3, dvar%seed)
    call write_to_xml_integer( info, 'source_type', indent+3, dvar%source_type)
    call write_to_xml_word( info, 'source_path', indent+3, dvar%source_path)

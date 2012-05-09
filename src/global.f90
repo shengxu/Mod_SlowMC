@@ -30,6 +30,8 @@ module global
   integer :: nhistories
   integer :: seed
   integer :: source_type
+  ! number of samples per xs for broadening
+  integer :: sample_per_xs=1
 
   ! list global vars that are set during run
 ! Commented out by S. Xu
@@ -147,7 +149,7 @@ contains
     do i = 1,n_materials
 
       ! call routine to compute xs
-      call doppler_broaden_xs(mat(i), neut%E)
+      call doppler_broaden_xs(mat(i), neut%E, sample_per_xs)
 
     end do
 

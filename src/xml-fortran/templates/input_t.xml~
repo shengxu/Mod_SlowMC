@@ -8,7 +8,7 @@
     <component name="seed" type="integer" />
     <component name="source_type" type="integer" />
     <component name="source_path" type="word" length="255" />
-    <component name="result_path" type="word" length="255" />
+    <component name="output_path" type="word" length="255" />
     <component name="Dancoff" type="double" />
     <component name="res_iso" type="word" length="255" />
     <component name="radius" type="double" />

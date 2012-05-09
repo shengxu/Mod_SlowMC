@@ -37,6 +37,16 @@
  XML_GET - number of data lines:           2
  tag: component                                                                       
  attribs:            2
+   name = sample_per_xs
+   type = integer
+ data:            2
+   ><
+   ><
+ XML_GET - tag found: component
+ XML_GET - number of attributes:           2
+ XML_GET - number of data lines:           2
+ tag: component                                                                       
+ attribs:            2
    name = seed
    type = integer
  data:            2

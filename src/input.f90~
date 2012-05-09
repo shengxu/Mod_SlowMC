@@ -24,7 +24,7 @@ contains
     ! added by S. Xu
     use parameters,        only: emin,emax
 
-    use global,           only: nhistories,seed,source_type,mat, & !emin,emax,     & ! commented out by S. Xu
+    use global,           only: nhistories,seed,source_type,sample_per_xs,mat, & !emin,emax,     & ! commented out by S. Xu
    &                            allocate_problem,tal,n_tallies,n_materials,    &
    &                            res_iso,Dancoff,radius, output_filename, output_path, &
    &                            res_intg,res_intg_inf
@@ -61,12 +61,13 @@ contains
     character(len=255)    :: arg_str ! input arguments
     character             :: nhist_1digt, nhist_power ! convert nhistories to string          
     logical               :: nhist_from_cmdline ! check whether nhistories is input from command line
-
+    logical               :: samplexs_from_cmdline ! check whether sample_per_xs is input from command line
 ! Modified by S. Xu (May 2012)
 !    ! check for input file
 !    filename = "input.xml"
     filename = "input.xml"
     nhist_from_cmdline = .false.
+    samplexs_from_cmdline = .false.
     i = 1
     do 
       call get_command_argument(i, arg_str)
@@ -77,11 +78,16 @@ contains
         case(2)
           read(arg_str, *) nhistories
           nhist_from_cmdline = .true.
+        case(3)
+          read(arg_str, *) sample_per_xs
+          samplexs_from_cmdline = .true.
         case default
           print *, 'Input argument should be less than or equal to 2'
       end select
       i = i + 1
     end do
+
+    write(*,'(A,i15/)') "number of sample per xs data: ", sample_per_xs
       
 !    n_arg = command_argument_count()
 !    if (n_arg == 0) then
@@ -96,7 +102,7 @@ contains
 !      write(*,*) "Too many input argument!"
 !    end if
     
-    write(*,'("Input file:", A/)') trim(filename)
+    write(*,'("Input file: ", A/)') trim(filename)
     
 
     inquire(FILE=trim(filename), EXIST=file_exists)
@@ -117,7 +123,6 @@ contains
     if (.not. nhist_from_cmdline) then
       nhistories = settings_%histories
     end if
-
     write(*,'(A,i15/)') "number of history: ", nhistories
 
     ! get the neutron histories to output file name
@@ -126,14 +131,15 @@ contains
 !print *, nhist_1digt, nhist_power
     output_filename = filename(1:(len(trim(filename))-4))//'_'//nhist_1digt//'e'//nhist_power
 
-!    write(*,*) trim(output_filename)
+    if ( (.not. samplexs_from_cmdline) .and. (settings_%sample_per_xs/= 0) ) then
+      sample_per_xs = settings_%sample_per_xs
+    end if
+    write(*,'(A,i15/)') "number of sample per xs data: ", sample_per_xs
 
     seed = settings_%seed
     source_type = settings_%source_type
-
+    
     ! check output directory (not sure if there is better approach)
-!    output_path = './'
-!print *, 'output_path = ',output_path
 !print *, 'try another:',trim(settings_%output_path)//'/'
     output_path = './'//trim(settings_%output_path)//'/'
     write(*, '(A, A/)'), 'output_path = ', trim(output_path)
