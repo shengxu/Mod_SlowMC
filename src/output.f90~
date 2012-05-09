@@ -100,7 +100,7 @@ contains
 !    write(*,*) 'absorption:', reaction_tally(2)
 !    write(*,*) 'scattering:', reaction_tally(3)
 
-    write(*,'(/A,A,/)') "Output files can be found in: ", output_path
+
 
     ! format for kinf write statements
 101 format(1X,A,T25,F7.5,1X,'+/-',1X,F7.5)
@@ -182,6 +182,8 @@ contains
       call write_res_intg(111)
       close(111)
     end if
+
+    write(*,'(/A,A,/)') "Output files can be found in: ", trim(output_path)
     
   end subroutine write_output
 

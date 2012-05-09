@@ -183,7 +183,7 @@ contains
       close(111)
     end if
 
-    write(*,'(/A,A,/)') "Output files can be found in: ", trim(output_path)
+!    write(*,'(/A,A,/)') "Output files can be found in: ", trim(output_path)
     
   end subroutine write_output
 

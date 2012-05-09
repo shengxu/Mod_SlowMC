@@ -62,6 +62,7 @@ contains
     character             :: nhist_1digt, nhist_power ! convert nhistories to string          
     logical               :: nhist_from_cmdline ! check whether nhistories is input from command line
     logical               :: samplexs_from_cmdline ! check whether sample_per_xs is input from command line
+    character(len=3)      :: samplexs_str
 ! Modified by S. Xu (May 2012)
 !    ! check for input file
 !    filename = "input.xml"
@@ -102,6 +103,7 @@ contains
     
     write(*,'("Input file: ", A/)') trim(filename)
     
+    output_filename = filename(1:(len(trim(filename))-4))
 
     inquire(FILE=trim(filename), EXIST=file_exists)
     if (.not. file_exists) then
@@ -117,6 +119,7 @@ contains
     ! set to default values
     settings_%histories = nhistories
     settings_%seed = seed
+    settings_%source_type = source_type
     settings_%output_path = ''
 
     ! read in input file
@@ -132,12 +135,23 @@ contains
     write(nhist_power, '(i1)') int(log10(dble(nhistories)))
     write(nhist_1digt, '(i1)') int(nhistories/10**log10(dble(nhistories)))
 !print *, nhist_1digt, nhist_power
-    output_filename = filename(1:(len(trim(filename))-4))//'_'//nhist_1digt//'e'//nhist_power
+
+    if (nhist_from_cmdline) then
+      output_filename = output_filename//'_'//nhist_1digt//'e'//nhist_power
+    end if
 
     if ( (.not. samplexs_from_cmdline) .and. (settings_%sample_per_xs/= 0) ) then
       sample_per_xs = settings_%sample_per_xs
     end if
     write(*,'(A,i15/)') "number of sample per xs data: ", sample_per_xs
+
+    write(samplexs_str,'(i3.3)') sample_per_xs
+
+!write(*, *) samplexs_str
+
+    if (samplexs_from_cmdline) then
+      output_filename = output_filename//'_'//samplexs_str
+    end if
 
     seed = settings_%seed
     source_type = settings_%source_type
