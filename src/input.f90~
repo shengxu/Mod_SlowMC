@@ -86,8 +86,6 @@ contains
       end select
       i = i + 1
     end do
-
-    write(*,'(A,i15/)') "number of sample per xs data: ", sample_per_xs
       
 !    n_arg = command_argument_count()
 !    if (n_arg == 0) then
@@ -115,6 +113,11 @@ contains
       write(*,'(A/)') "Reading INPUT XML file..."
 
     end if
+
+    ! set to default values
+    settings_%histories = nhistories
+    settings_%seed = seed
+    settings_%output_path = ''
 
     ! read in input file
     call read_xml_file_input_t(trim(filename))

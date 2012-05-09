@@ -114,6 +114,12 @@ contains
 
     end if
 
+    ! set to default values
+    settings_%histories = nhistories
+    settings_%seed = seed
+    settings_%source_type = source_type
+    settings_%output_path = ''
+
     ! read in input file
     call read_xml_file_input_t(trim(filename))
 

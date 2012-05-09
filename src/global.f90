@@ -27,9 +27,9 @@ module global
   type(tally_type), allocatable    :: tal(:)
 
   ! list history input information
-  integer :: nhistories
-  integer :: seed
-  integer :: source_type
+  integer :: nhistories=10000
+  integer :: seed=1
+  integer :: source_type=1
   ! number of samples per xs for broadening
   integer :: sample_per_xs=1
 
