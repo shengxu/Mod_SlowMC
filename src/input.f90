@@ -191,10 +191,14 @@ contains
 
       ! get number of isotopes and volume
       nisotopes = size(materials_%material(i)%nuclides)
-      vol = materials_%material(i)%V
+      
 
       ! set homogeneous volume
-      if (trim(materials_%material(i)%type)=='homogeneous') vol = 1.0_8
+      if (trim(materials_%material(i)%type)=='homogeneous') then
+        vol = 1.0_8
+      else
+        vol = materials_%material(i)%V
+      end if
 
       ! set up the material object
       call setup_material(mat(i),emin,emax,nisotopes,vol)

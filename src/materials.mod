@@ -1,5 +1,5 @@
-GFORTRAN module version '6' created from materials.f90 on Wed May  9 19:38:50 2012
-MD5:b11f8da920cf1d1eef55ba5f557692ef -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '6' created from materials.f90 on Mon Aug 13 13:55:06 2012
+MD5:d6a9c3cd2f0b34f6add5ad77bb0526a8 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -184,14 +184,6 @@ INTEGER ()) 0 '255'))) 0 0 () () 0 () () () 0 0)
 21 'doppler' '' 'doppler' 14 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN UNKNOWN 0 0 DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () ()
 () 0 0)
-24 'this' '' 'this' 23 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
-UNKNOWN 0 0 DUMMY) (DERIVED 27 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
-25 'source_type' '' 'source_type' 23 ((VARIABLE UNKNOWN-INTENT
-UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
-() 0 () () () 0 0)
-26 'source_path' '' 'source_path' 23 ((VARIABLE UNKNOWN-INTENT
-UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (CHARACTER 1 0 0 CHARACTER ((
-CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '255'))) 0 0 () () 0 () () () 0 0)
 11 'e' '' 'e' 9 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
 0 DUMMY) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
 10 'this' '' 'this' 9 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
@@ -205,6 +197,14 @@ UNKNOWN 0 0 TARGET DUMMY) (DERIVED 27 0 0 DERIVED ()) 0 0 () () 0 () ()
 () 0 0)
 7 'this' '' 'this' 6 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 UNKNOWN 0 0 DUMMY) (DERIVED 27 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+24 'this' '' 'this' 23 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
+UNKNOWN 0 0 DUMMY) (DERIVED 27 0 0 DERIVED ()) 0 0 () () 0 () () () 0 0)
+25 'source_type' '' 'source_type' 23 ((VARIABLE UNKNOWN-INTENT
+UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (INTEGER 4 0 0 INTEGER ()) 0 0 ()
+() 0 () () () 0 0)
+26 'source_path' '' 'source_path' 23 ((VARIABLE UNKNOWN-INTENT
+UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (CHARACTER 1 0 0 CHARACTER ((
+CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '255'))) 0 0 () () 0 () () () 0 0)
 )
 
 ('compute_macroxs' 0 2 'deallocate_material' 0 5 'doppler_broaden_xs' 0

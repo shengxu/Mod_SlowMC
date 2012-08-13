@@ -137,7 +137,7 @@ contains
 !print *, nhist_1digt, nhist_power
 
     if (nhist_from_cmdline) then
-      output_filename = output_filename//'_'//nhist_1digt//'e'//nhist_power
+      output_filename = trim(output_filename)//'_'//nhist_1digt//'e'//nhist_power
     end if
 
     if ( (.not. samplexs_from_cmdline) .and. (settings_%sample_per_xs/= 0) ) then
@@ -150,7 +150,7 @@ contains
 !write(*, *) samplexs_str
 
     if (samplexs_from_cmdline) then
-      output_filename = output_filename//'_'//samplexs_str
+      output_filename = trim(output_filename)//'_'//samplexs_str
     end if
 
     seed = settings_%seed

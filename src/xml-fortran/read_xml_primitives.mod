@@ -1,5 +1,5 @@
-GFORTRAN module version '6' created from read_xml_primitives.f90 on Wed May  9 18:22:49 2012
-MD5:b6a587e251f7de63d40943f0df2157a2 -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '6' created from read_xml_primitives.f90 on Mon Aug 13 13:54:50 2012
+MD5:1bedf73c6d0bfed4e80d0ffa3784e83e -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -35,8 +35,8 @@ ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 22 0 (23 24 25 26 27 28 29
 30 31) () 0 () () () 0 0)
 32 'read_xml_double_1dim' 'read_xml_primitives' 'read_xml_double_1dim' 1
 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
-IMPLICIT_PURE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 33 0 (34 35 36
-37 38 39 40 41 42) () 0 () () () 0 0)
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 33 0 (34 35 36 37 38 39 40
+41 42) () 0 () () () 0 0)
 43 'read_xml_double_array' 'read_xml_primitives' 'read_xml_double_array'
 1 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
 ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 44 0 (45 46 47 48 49 50 51
@@ -47,8 +47,8 @@ ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 55 0 (56 57 58 59 60 61 62
 63 64) () 0 () () () 0 0)
 65 'read_xml_integer_1dim' 'read_xml_primitives' 'read_xml_integer_1dim'
 1 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
-IMPLICIT_PURE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 66 0 (67 68 69
-70 71 72 73 74 75) () 0 () () () 0 0)
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 66 0 (67 68 69 70 71 72 73
+74 75) () 0 () () () 0 0)
 76 'read_xml_integer_array' 'read_xml_primitives' 'read_xml_integer_array'
 1 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
 ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 77 0 (78 79 80 81 82 83 84
@@ -59,8 +59,8 @@ UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT)
 () 0 0)
 98 'read_xml_line_1dim' 'read_xml_primitives' 'read_xml_line_1dim' 1 ((
 PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
-IMPLICIT_PURE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 99 0 (100 101
-102 103 104 105 106 107 108) () 0 () () () 0 0)
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 99 0 (100 101 102 103 104
+105 106 107 108) () 0 () () () 0 0)
 109 'read_xml_line_array' 'read_xml_primitives' 'read_xml_line_array' 1
 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
 ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 110 0 (111 112 113 114 115
@@ -71,8 +71,8 @@ ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 121 0 (122 123 124 125 126
 127 128 129 130) () 0 () () () 0 0)
 131 'read_xml_logical_1dim' 'read_xml_primitives' 'read_xml_logical_1dim'
 1 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
-IMPLICIT_PURE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 132 0 (133 134
-135 136 137 138 139 140 141) () 0 () () () 0 0)
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 132 0 (133 134 135 136 137
+138 139 140 141) () 0 () () () 0 0)
 142 'read_xml_logical_array' 'read_xml_primitives'
 'read_xml_logical_array' 1 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL
 UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 143 0
@@ -86,8 +86,8 @@ UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT)
 0 () () () 0 0)
 165 'read_xml_real_1dim' 'read_xml_primitives' 'read_xml_real_1dim' 1 (
 (PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
-IMPLICIT_PURE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 166 0 (167 168
-169 170 171 172 173 174 175) () 0 () () () 0 0)
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 166 0 (167 168 169 170 171
+172 173 174 175) () 0 () () () 0 0)
 176 'read_xml_real_array' 'read_xml_primitives' 'read_xml_real_array' 1
 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
 ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 177 0 (178 179 180 181 182
@@ -98,8 +98,8 @@ UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT)
 0 () () () 0 0)
 198 'read_xml_word_1dim' 'read_xml_primitives' 'read_xml_word_1dim' 1 (
 (PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
-IMPLICIT_PURE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 199 0 (200 201
-202 203 204 205 206 207 208) () 0 () () () 0 0)
+ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 199 0 (200 201 202 203 204
+205 206 207 208) () 0 () () () 0 0)
 209 'read_xml_word_array' 'read_xml_primitives' 'read_xml_word_array' 1
 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE
 ALWAYS_EXPLICIT) (UNKNOWN 0 0 0 UNKNOWN ()) 210 0 (211 212 213 214 215
