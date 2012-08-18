@@ -388,7 +388,7 @@ print *, this%curr_iso
 ! doppler_broaden_xs
 !> @brief routine routine to do the on the fly doppler broadening
 !===============================================================================
-  subroutine doppler_broaden_xs(this, E)
+  subroutine doppler_broaden_xs(this, E, sample_per_xs)
 
     use on_the_fly_xs_gen, only: energy_doppler_broadened
     use LinearInterpolation, only: LinInterp
@@ -398,12 +398,12 @@ print *, this%curr_iso
     ! formal variables
     type(material_type),target :: this ! a material
     real(8)                    :: E    ! neutron energy
+    integer                    :: sample_per_xs
     ! local variables
     real(8) :: E_brdn
     integer :: ind ! energy interval
     logical :: stat 
     integer :: i, j  ! loop counter
-    integer :: n_sample=2
     real(8) :: v
     real(8) :: v_brdn
     real(8) :: xs_capt_tmp,xs_scat_tmp,xs_fiss_tmp
@@ -417,7 +417,7 @@ print *, this%curr_iso
         this%isotopes(i)%xs_scat_brdn = 0.0_8
         this%isotopes(i)%xs_fiss_brdn = 0.0_8
 
-        do j=1,n_sample
+        do j=1,sample_per_xs
         ! sample the relative kinetic energy
           call energy_doppler_broadened(v, this%isotopes(i)%alpha_MB, v_brdn)
           E_brdn = 0.5_8*M_NEUT*v_brdn**2
@@ -436,9 +436,9 @@ print *, this%curr_iso
           this%isotopes(i)%xs_fiss_brdn = this%isotopes(i)%xs_fiss_brdn+v_brdn/v*xs_fiss_tmp
         end do
 
-        this%isotopes(i)%xs_capt_brdn = this%isotopes(i)%xs_capt_brdn/dble(n_sample)
-        this%isotopes(i)%xs_scat_brdn = this%isotopes(i)%xs_scat_brdn/dble(n_sample)
-        this%isotopes(i)%xs_fiss_brdn = this%isotopes(i)%xs_fiss_brdn/dble(n_sample)
+        this%isotopes(i)%xs_capt_brdn = this%isotopes(i)%xs_capt_brdn/dble(sample_per_xs)
+        this%isotopes(i)%xs_scat_brdn = this%isotopes(i)%xs_scat_brdn/dble(sample_per_xs)
+        this%isotopes(i)%xs_fiss_brdn = this%isotopes(i)%xs_fiss_brdn/dble(sample_per_xs)
 
 !        write(997, '(es19.8e3, 3x, es19.8e3)')  E, this%isotopes(i)%xs_capt_brdn
 !        write(998, '(es19.8e3, 3x, es19.8e3)')  E, this%isotopes(i)%xs_scat_brdn

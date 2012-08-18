@@ -1,4 +1,4 @@
-GFORTRAN module version '6' created from write_xml_primitives.f90 on Mon Aug 13 13:54:51 2012
+GFORTRAN module version '6' created from write_xml_primitives.f90 on Fri Aug 17 18:47:05 2012
 MD5:015306f1d6cb5c9aa45fdfbe6f298b7a -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()

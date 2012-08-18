@@ -1,4 +1,4 @@
-GFORTRAN module version '6' created from constants.f90 on Mon Aug 13 13:55:05 2012
+GFORTRAN module version '6' created from constants.f90 on Fri Aug 17 18:47:28 2012
 MD5:a268f1799b2d313c20c03ea5b8efd37b -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () () ()

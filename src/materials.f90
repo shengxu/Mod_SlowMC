@@ -221,7 +221,7 @@ contains
 !    ! keep the size
 !    this%isotopes(this%curr_iso)%npts = vecsize
 
-print *, this%curr_iso
+!print *, this%curr_iso
     ! added by S. Xu (Apr. 2012)
     ! zero out energy grid vectors
     this%isotopes(this%curr_iso)%engy_scat = 0.0_8

@@ -1,4 +1,4 @@
-GFORTRAN module version '6' created from BiSearch.f90 on Mon Aug 13 13:55:05 2012
+GFORTRAN module version '6' created from BiSearch.f90 on Fri Aug 17 18:47:28 2012
 MD5:156735490db88fae32af777fda84b58f -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () () ()
