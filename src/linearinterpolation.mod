@@ -1,5 +1,5 @@
-GFORTRAN module version '6' created from LinearInterpolation.f90 on Fri Aug 17 18:47:28 2012
-MD5:3a0a98bc1932f460623ee6049e25bff5 -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '6' created from LinearInterpolation.f90 on Sat Aug 25 12:21:26 2012
+MD5:f91b3d5de719d4718a08f70f7ae502fd -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -26,14 +26,16 @@ UNKNOWN ()) 0 0 () () 0 () () () 0 0)
 10 'lininterp' 'linearinterpolation' 'lininterp' 1 ((PROCEDURE
 UNKNOWN-INTENT MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT)
 (UNKNOWN 0 0 0 UNKNOWN ()) 11 0 (12 13 14 15) () 0 () () () 0 0)
+14 'x_int' '' 'x_int' 11 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
+15 'y_int' '' 'y_int' 11 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+DUMMY) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
 12 'x' '' 'x' 11 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DIMENSION DUMMY) (REAL 8 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (
 CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
 13 'y' '' 'y' 11 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DIMENSION DUMMY) (REAL 8 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (
 CONSTANT (INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
-14 'x_int' '' 'x_int' 11 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
-DUMMY) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
 4 'a' '' 'a' 3 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
 TARGET DUMMY) (REAL 8 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (CONSTANT (
 INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
@@ -42,8 +44,6 @@ INTEGER 4 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
 7 'stat' '' 'stat' 3 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DUMMY) (LOGICAL 4 0 0 LOGICAL ()) 0 0 () () 0 () () () 0 0)
 5 'value' '' 'value' 3 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
-DUMMY) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
-15 'y_int' '' 'y_int' 11 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DUMMY) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
 )
 

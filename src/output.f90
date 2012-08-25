@@ -63,9 +63,9 @@ contains
 
   subroutine write_output()
 
-    use global, only: time_init,time_run,tal,n_tallies,ana_kinf_mean,          &
-   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, output_filename, output_path, &
-   &                   tal,res_intg,res_intg_rec, write_res_intg
+    use global, only: time_init,time_run,reduced_tal,n_tallies,ana_kinf_mean,          &
+   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, output_filename, output_path
+!   &                   res_intg,res_intg_rec, write_res_intg
    !&                  ,col_kinf_mean_2, col_kinf_std_2, reaction_tally, 
     use hdf5
 
@@ -136,33 +136,33 @@ contains
       call h5gcreate_f(hdfile,"tally_"//trim(talnum),group_id,error)
 
       ! write mean
-      dim2 = (/size(tal(i)%mean,1),size(tal(i)%mean,2)/)
+      dim2 = (/size(reduced_tal(i)%mean,1),size(reduced_tal(i)%mean,2)/)
 
       call h5screate_simple_f(2,dim2,dataspace_id,error)
       call h5dcreate_f(hdfile,"tally_"//trim(talnum)//"/mean",H5T_NATIVE_DOUBLE&
      &                ,dataspace_id,dataset_id,error)
-      call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,tal(i)%mean,dim2,error)
+      call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,reduced_tal(i)%mean,dim2,error)
       call h5sclose_f(dataspace_id,error)
       call h5dclose_f(dataset_id,error)
 
       ! write standard deviation 
-      dim2 = (/size(tal(i)%std,1),size(tal(i)%std,2)/)
+      dim2 = (/size(reduced_tal(i)%std,1),size(reduced_tal(i)%std,2)/)
       call h5screate_simple_f(2,dim2,dataspace_id,error)
       call h5dcreate_f(hdfile,"tally_"//trim(talnum)//"/std",H5T_NATIVE_DOUBLE &
      &                ,dataspace_id,dataset_id,error)
-      call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,tal(i)%std,dim2,error)
+      call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,reduced_tal(i)%std,dim2,error)
       call h5sclose_f(dataspace_id,error)
       call h5dclose_f(dataset_id,error)
 
       ! only write energy edges if a user tally
-      if (.not.tal(i)%flux_tally) then
+      if (.not.reduced_tal(i)%flux_tally) then
 
         ! write tally data to file
-        dim1 = (/size(tal(i)%E)/)
+        dim1 = (/size(reduced_tal(i)%E)/)
         call h5screate_simple_f(1,dim1,dataspace_id,error)
         call h5dcreate_f(hdfile,"tally_"//trim(talnum)//"/E",H5T_NATIVE_DOUBLE,&
        &                 dataspace_id,dataset_id,error)
-        call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,tal(i)%E,dim1,error)
+        call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,reduced_tal(i)%E,dim1,error)
         call h5sclose_f(dataspace_id,error)
         call h5dclose_f(dataset_id,error)
 
@@ -176,12 +176,12 @@ contains
     ! close the file
     call h5fclose_f(hdfile,error)
 
-    ! write out resonance integral information
-    if (res_intg) then
-      open(111,file=trim(output_path)//'res_'//trim(output_filename)//'.out', status="unknown")
-      call write_res_intg(111)
-      close(111)
-    end if
+!    ! write out resonance integral information
+!    if (res_intg) then
+!      open(111,file=trim(output_path)//'res_'//trim(output_filename)//'.out', status="unknown")
+!      call write_res_intg(111)
+!      close(111)
+!    end if
 
 !    write(*,'(/A,A,/)') "Output files can be found in: ", trim(output_path)
     

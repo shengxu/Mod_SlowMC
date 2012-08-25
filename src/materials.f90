@@ -8,85 +8,10 @@
 
 module materials
 
+!  use material_header, only: n_source_type, thermal_type, iso_type, material_type
+  use global
+
   implicit none
-  private
-  public :: setup_material,load_source,load_isotope,compute_macroxs,           &
- &          deallocate_material, doppler_broaden_xs  ! last added by S. Xu
-
-  type :: source_type
-
-    real(8), allocatable :: E(:)      ! energy range for fission source
-    real(8)              :: cdf_width ! width of cdf bins from 0 to 1
-
-  end type source_type
-
-  type :: thermal_type
-
-    integer               :: kTsize    ! size of kT vector
-    integer               :: cdfsize   ! size of cdf
-    real(8), allocatable  :: kTvec(:)  ! vector of kT values
-    real(8), allocatable  :: Erat(:,:) ! energy
-    real(8)               :: cdf_width ! width of cdf interval from 0 to 1 
-    
-  end type thermal_type
-
-  type :: iso_type
-
-    real(8)               :: N           ! number density
-    real(8)               :: A           ! atomic weight
-    real(8)               :: alpha       ! (A-1)^2/(A+1)^2
-    real(8)               :: mubar       ! average cosine scattering angle
-    real(8), allocatable  :: xs_capt(:)  ! capture micro xs
-    real(8), allocatable  :: xs_scat(:)  ! scattering micro xs
-    real(8), allocatable  :: xs_fiss(:)  ! fission micro xs
-    character(len=255)    :: name        ! name of isotope
-
-    logical               :: thermal     ! thermal scatterer
-    type(thermal_type)    :: thermal_lib ! thermal library
-
-    
-    ! added by S. Xu (Apr. 2012)
-    real(8)                     :: alpha_MB      ! for doppler braodening
-    real(8)                     :: xs_capt_brdn  ! capture xs after doppler broadening
-    real(8)                     :: xs_scat_brdn  ! scattering xs after doppler broadening
-    real(8)                     :: xs_fiss_brdn  ! fission xs after doppler broadening
-    real(8), allocatable  :: engy_capt(:)  ! energy grid for capture xs
-    real(8), allocatable  :: engy_scat(:)  ! energy grid for scattering xs
-    real(8), allocatable  :: engy_fiss(:)  ! energy grid for fission xs
-    integer               :: capt_size     ! size of xs_capt
-    integer               :: scat_size     ! size of xs_scat
-    integer               :: fiss_size     ! size of xs_fiss
-    logical               :: doppler ! indicte whether doppler braodening is performed
-
-  end type iso_type
-
-  type, public ::  material_type
-
-    type(source_type)           :: source        ! the source of neutrons
-    type(iso_type), allocatable :: isotopes(:)   ! 1-D array of isotopes in mat
-    integer                     :: nisotopes     ! number of isotopes in mat
-    integer                     :: curr_iso      ! the current isotope
-    integer                     :: npts          ! number of points in energy
-    real(8)                     :: E_width       ! width of energy interval
-    real(8)                     :: E_min         ! min energy
-    real(8)                     :: E_max         ! max energy
-    real(8)                     :: vol           ! volume of region
-    real(8), allocatable        :: totalxs(:,:)  ! array of macroscopic tot xs
-    real(8), allocatable        :: scattxs(:,:)  ! array of macroscopic scat xs
-    real(8), allocatable        :: absorxs(:,:)  ! array of macroscopic abs xs
-    real(8), allocatable        :: captuxs(:,:)  ! array of macroscopic capt xs
-    real(8), allocatable        :: fissixs(:,:)  ! array of macroscopic fiss xs
-    real(8), allocatable        :: transxs(:,:)  ! array of macro transport xs
-
-    ! added by S. Xu (Apr. 2012)
-    real(8), allocatable        :: xs_Total_brdn(:)  ! array of total macro xs for each isotope after doppler broadening
-    real(8), allocatable        :: xs_Capt_brdn(:)  ! macro capture xs after doppler broadening
-    real(8), allocatable        :: xs_Scat_brdn(:)  ! macro scattering xs after doppler broadening
-    real(8), allocatable        :: xs_Fiss_brdn(:)  ! macro fission xs after doppler broadening
-    real(8), allocatable        :: xs_Absb_brdn(:)  ! macro absorb xs after doppler broadening
-    real(8), allocatable        :: xs_Tran_brdn(:)  ! macro transport xs after doppler broadening
-
-  end type material_type
 
 contains
 
@@ -131,10 +56,6 @@ contains
   subroutine load_isotope(this,N,A,path,thermal,name, doppler)
 
     use hdf5
-! Added by S. Xu (Apr. 2012)
-    use constants, only: PI, K_BOLTZMANN, M_NUCLEON
-    use parameters, only: T
-
 
     ! formal variables
     type(material_type),target :: this    ! a material
@@ -158,8 +79,10 @@ contains
 
     integer                        :: i
 
-    ! display to user
-    write(*,*) 'Loading isotope: ',trim(name)
+    if (master) then
+        ! display to user
+        write(*,*) 'Loading isotope: ',trim(name)
+    end if
 
     ! set parameters
     this%isotopes(this%curr_iso)%N = N
@@ -324,6 +247,14 @@ contains
     ! increment isotope counter
     this%curr_iso = this%curr_iso + 1
 
+!#ifdef DEBUG
+!  print *, 'from processor ', rank
+!  print *, "isotope ", this%curr_iso, "from processor ", rank
+!  print *, "capture xs data : "
+!  print *, this%isotopes(this%curr_iso-1)%xs_capt(1:20)
+!  print *, this%isotopes(this%curr_iso-1)%engy_capt(1:20)
+!#endif
+
   end subroutine load_isotope
 
 !===============================================================================
@@ -385,168 +316,121 @@ contains
 
 
 !===============================================================================
-! doppler_broaden_xs
-!> @brief routine routine to do the on the fly doppler broadening
+! doppler_broaden
+!> @brief routine to do the on the fly doppler broadening
 !===============================================================================
-  subroutine doppler_broaden_xs(this, E, sample_per_xs)
+  subroutine doppler_broaden()
 
     use on_the_fly_xs_gen, only: energy_doppler_broadened
     use LinearInterpolation, only: LinInterp
-    use constants, only: M_NEUT
-    use parameters, only: vmin
-    
-    ! formal variables
-    type(material_type),target :: this ! a material
-    real(8)                    :: E    ! neutron energy
-    integer                    :: sample_per_xs
+!    use constants, only: M_NEUT
+
     ! local variables
     real(8) :: E_brdn
-    integer :: ind ! energy interval
-    logical :: stat 
-    integer :: i, j  ! loop counter
+    integer :: i, j, k  ! loop counter
     real(8) :: v
     real(8) :: v_brdn
     real(8) :: xs_capt_tmp,xs_scat_tmp,xs_fiss_tmp
 !    real    :: dE ! for debug
 
-    do i = 1, this%nisotopes
-      if (this%isotopes(i)%doppler) then
+    do k = 1, n_materials
 
-        v = sqrt(2._8*E/M_NEUT)
-        this%isotopes(i)%xs_capt_brdn = 0.0_8
-        this%isotopes(i)%xs_scat_brdn = 0.0_8
-        this%isotopes(i)%xs_fiss_brdn = 0.0_8
+        do i = 1, mat(k)%nisotopes
 
-        do j=1,sample_per_xs
-        ! sample the relative kinetic energy
-          call energy_doppler_broadened(v, this%isotopes(i)%alpha_MB, v_brdn)
-          E_brdn = 0.5_8*M_NEUT*v_brdn**2
+          if (mat(k)%isotopes(i)%doppler) then
 
-          ! broaden xs
-          call LinInterp(this%isotopes(i)%engy_capt, this%isotopes(i)%xs_capt, &
-               & E_brdn, xs_capt_tmp)
-          this%isotopes(i)%xs_capt_brdn = this%isotopes(i)%xs_capt_brdn+v_brdn/v*xs_capt_tmp
+            v = sqrt(2._8*neut%E/M_NEUT)
+            mat(k)%isotopes(i)%xs_capt_brdn = 0.0_8
+            mat(k)%isotopes(i)%xs_scat_brdn = 0.0_8
+            mat(k)%isotopes(i)%xs_fiss_brdn = 0.0_8
 
-          call LinInterp(this%isotopes(i)%engy_scat, this%isotopes(i)%xs_scat, &
-               & E_brdn, xs_scat_tmp)
-          this%isotopes(i)%xs_scat_brdn = this%isotopes(i)%xs_scat_brdn+v_brdn/v*xs_scat_tmp
+            do j=1,sample_per_xs
+            ! sample the relative kinetic energy
+              call energy_doppler_broadened(v, mat(k)%isotopes(i)%alpha_MB, v_brdn)
+              E_brdn = 0.5_8*M_NEUT*v_brdn**2
 
-          call LinInterp(this%isotopes(i)%engy_fiss, this%isotopes(i)%xs_fiss, &
-               & E_brdn, xs_fiss_tmp)
-          this%isotopes(i)%xs_fiss_brdn = this%isotopes(i)%xs_fiss_brdn+v_brdn/v*xs_fiss_tmp
+              ! broaden xs
+              call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, E_brdn, xs_capt_tmp)
+              mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn+v_brdn/v*xs_capt_tmp
+
+              call LinInterp(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, E_brdn, xs_scat_tmp)
+              mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn+v_brdn/v*xs_scat_tmp
+
+              call LinInterp(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, E_brdn, xs_fiss_tmp)
+              mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn+v_brdn/v*xs_fiss_tmp
+            end do
+
+            mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn/dble(sample_per_xs)
+            mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn/dble(sample_per_xs)
+            mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn/dble(sample_per_xs)
+
+    !        write(997, '(es19.8e3, 3x, es19.8e3)')  neut%E, mat(k)%isotopes(i)%xs_capt_brdn
+    !        write(998, '(es19.8e3, 3x, es19.8e3)')  neut%E, mat(k)%isotopes(i)%xs_scat_brdn
+    !        write(999, '(es19.8e3, 3x, es19.8e3)')  neut%E, mat(k)%isotopes(i)%xs_fiss_brdn
+
+          else
+
+            ! find xs
+            call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, neut%E, mat(k)%isotopes(i)%xs_capt_brdn)
+
+            call LinInterp(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, neut%E, mat(k)%isotopes(i)%xs_scat_brdn)
+      
+            call LinInterp(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, neut%E, mat(k)%isotopes(i)%xs_fiss_brdn)
+
+          end if
+
+    ! ! Added by S. Xu for Debug
+    ! if (trim(mat(k)%isotopes(i)%name) == 'U-238' .and. E<=10.e-6 .and. E>=1.e-6) then
+    !       dE = sqrt(2._8*M_NEUT*E/mat(k)%isotopes(i)%alpha_MB)
+    !       write(10, '(2e19.8e3, 2x, f7.3, 3e19.8e3)') E, E_brdn, (E_brdn-E)/dE, &
+    !    & mat(k)%isotopes(i)%xs_capt_brdn, mat(k)%isotopes(i)%xs_scat_brdn, mat(k)%isotopes(i)%xs_fiss_brdn
+    ! end if
+
         end do
-
-        this%isotopes(i)%xs_capt_brdn = this%isotopes(i)%xs_capt_brdn/dble(sample_per_xs)
-        this%isotopes(i)%xs_scat_brdn = this%isotopes(i)%xs_scat_brdn/dble(sample_per_xs)
-        this%isotopes(i)%xs_fiss_brdn = this%isotopes(i)%xs_fiss_brdn/dble(sample_per_xs)
-
-!        write(997, '(es19.8e3, 3x, es19.8e3)')  E, this%isotopes(i)%xs_capt_brdn
-!        write(998, '(es19.8e3, 3x, es19.8e3)')  E, this%isotopes(i)%xs_scat_brdn
-!        write(999, '(es19.8e3, 3x, es19.8e3)')  E, this%isotopes(i)%xs_fiss_brdn
-
-      else
-
-        ! find xs
-        call LinInterp(this%isotopes(i)%engy_capt, this%isotopes(i)%xs_capt, &
-             & E, this%isotopes(i)%xs_capt_brdn)
-
-        call LinInterp(this%isotopes(i)%engy_scat, this%isotopes(i)%xs_scat, &
-             & E, this%isotopes(i)%xs_scat_brdn)
-  
-        call LinInterp(this%isotopes(i)%engy_fiss, this%isotopes(i)%xs_fiss, &
-             & E, this%isotopes(i)%xs_fiss_brdn)
-
-      end if
-
-! ! Added by S. Xu for Debug
-! if (trim(this%isotopes(i)%name) == 'U-238' .and. E<=10.e-6 .and. E>=1.e-6) then
-!       dE = sqrt(2._8*M_NEUT*E/this%isotopes(i)%alpha_MB)
-!       write(10, '(2e19.8e3, 2x, f7.3, 3e19.8e3)') E, E_brdn, (E_brdn-E)/dE, &
-!    & this%isotopes(i)%xs_capt_brdn, this%isotopes(i)%xs_scat_brdn, this%isotopes(i)%xs_fiss_brdn
-! end if
 
     end do
 
-
-  end subroutine doppler_broaden_xs
+  end subroutine doppler_broaden
 
 !===============================================================================
-! COMPUTE_MACROXS
+! COMPUTE_MACRO_XS
 !> @brief routine to pre-compute macroscopic cross sections 
 !===============================================================================
 
-  subroutine compute_macroxs(this)
-
-    ! formal variables
-    type(material_type),target :: this ! a material
+  subroutine compute_macro_xs()
 
     ! local variables
-    integer                 :: i   ! loop counter
-    type(iso_type), pointer :: iso ! pointer to current isotope
+    integer                 :: i, j  ! loop counter
 
-! Commented out by S. Xu (Apr. 2012)
-!    ! allocate xs arrays
-!    if (.not.allocated(this%totalxs))                                          &
-!   &                            allocate(this%totalxs(this%npts,this%nisotopes))
-!    if (.not.allocated(this%scattxs))                                          &
-!   &                            allocate(this%scattxs(this%npts,this%nisotopes))
-!    if (.not.allocated(this%absorxs))                                          &
-!   &                            allocate(this%absorxs(this%npts,this%nisotopes))
-!    if (.not.allocated(this%captuxs))                                          &
-!   &                            allocate(this%captuxs(this%npts,this%nisotopes))
-!    if (.not.allocated(this%fissixs))                                          &
-!   &                            allocate(this%fissixs(this%npts,this%nisotopes))
-!    if (.not.allocated(this%transxs))                                          &
-!   &                            allocate(this%transxs(this%npts,this%nisotopes))
-!
-!    ! zero out total xs
-!    this%totalxs = 0.0_8
-!
-!    ! begin loop over isotopes
-!    do i = 1,this%nisotopes
-!
-!      ! set pointer to isotope
-!      iso => this%isotopes(i)
-!
-!      ! multiply microscopic cross section by number density and append
-!      this%captuxs(:,i) = iso%N*(iso%xs_capt)
-!      this%fissixs(:,i) = iso%N*(iso%xs_fiss)
-!      this%scattxs(:,i) = iso%N*(iso%xs_scat)
-!      this%absorxs(:,i) = iso%N*(iso%xs_capt + iso%xs_fiss)
-!      this%totalxs(:,i) = iso%N*(iso%xs_capt + iso%xs_fiss + iso%xs_scat)
-!      this%transxs(:,i) = this%totalxs(:,i) - iso%mubar*this%scattxs(:,i)
-!
-!    end do
+    do j = 1, n_materials
 
-! Added by S. Xu (Apr. 2012)
-    ! allocate xs arrays
-    if (.not.allocated(this%xs_Total_brdn)) allocate(this%xs_Total_brdn(this%nisotopes))
-    if (.not.allocated(this%xs_Capt_brdn)) allocate(this%xs_Capt_brdn(this%nisotopes))
-    if (.not.allocated(this%xs_Scat_brdn)) allocate(this%xs_Scat_brdn(this%nisotopes))
-    if (.not.allocated(this%xs_Fiss_brdn)) allocate(this%xs_Fiss_brdn(this%nisotopes))
-    if (.not.allocated(this%xs_Absb_brdn)) allocate(this%xs_Absb_brdn(this%nisotopes))
-    if (.not.allocated(this%xs_Tran_brdn)) allocate(this%xs_Tran_brdn(this%nisotopes))
+        ! allocate xs arrays
+        if (.not.allocated(mat(j)%xs_Total_brdn)) allocate(mat(j)%xs_Total_brdn(mat(j)%nisotopes))
+        if (.not.allocated(mat(j)%xs_Capt_brdn)) allocate(mat(j)%xs_Capt_brdn(mat(j)%nisotopes))
+        if (.not.allocated(mat(j)%xs_Scat_brdn)) allocate(mat(j)%xs_Scat_brdn(mat(j)%nisotopes))
+        if (.not.allocated(mat(j)%xs_Fiss_brdn)) allocate(mat(j)%xs_Fiss_brdn(mat(j)%nisotopes))
+        if (.not.allocated(mat(j)%xs_Absb_brdn)) allocate(mat(j)%xs_Absb_brdn(mat(j)%nisotopes))
+        if (.not.allocated(mat(j)%xs_Tran_brdn)) allocate(mat(j)%xs_Tran_brdn(mat(j)%nisotopes))
 
-    ! zero out total xs
-    this%xs_Total_brdn = 0.0_8
+        ! zero out total xs
+        mat(j)%xs_Total_brdn = 0.0_8
 
-    ! begin loop over isotopes
-    do i = 1,this%nisotopes
+        ! begin loop over isotopes
+        do i = 1,mat(j)%nisotopes
 
-      ! set pointer to isotope
-      iso => this%isotopes(i)
+          ! multiply microscopic cross section by number density and append
+          mat(j)%xs_Capt_brdn(i) = mat(j)%isotopes(i)%N*(mat(j)%isotopes(i)%xs_capt_brdn)
+          mat(j)%xs_Fiss_brdn(i) = mat(j)%isotopes(i)%N*(mat(j)%isotopes(i)%xs_fiss_brdn)
+          mat(j)%xs_Scat_brdn(i) = mat(j)%isotopes(i)%N*(mat(j)%isotopes(i)%xs_scat_brdn)
+          mat(j)%xs_Absb_brdn(i) = mat(j)%xs_Capt_brdn(i)+mat(j)%xs_Fiss_brdn(i)
+          mat(j)%xs_Total_brdn(i) = mat(j)%xs_Absb_brdn(i)+mat(j)%xs_Scat_brdn(i)
+          mat(j)%xs_Tran_brdn(i) = mat(j)%xs_Total_brdn(i) - mat(j)%isotopes(i)%mubar*mat(j)%xs_Scat_brdn(i)
 
-      ! multiply microscopic cross section by number density and append
-      this%xs_Capt_brdn(i) = iso%N*(iso%xs_capt_brdn)
-      this%xs_Fiss_brdn(i) = iso%N*(iso%xs_fiss_brdn)
-      this%xs_Scat_brdn(i) = iso%N*(iso%xs_scat_brdn)
-      this%xs_Absb_brdn(i) = this%xs_Capt_brdn(i)+this%xs_Fiss_brdn(i)
-      this%xs_Total_brdn(i) = this%xs_Absb_brdn(i)+this%xs_Scat_brdn(i)
-      this%xs_Tran_brdn(i) = this%xs_Total_brdn(i) - iso%mubar*this%xs_Scat_brdn(i)
+        end do
 
     end do
 
-  end subroutine compute_macroxs
+  end subroutine compute_macro_xs
 
 
 !===============================================================================

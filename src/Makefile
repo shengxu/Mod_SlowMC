@@ -16,7 +16,7 @@ include OBJECTS
 #===============================================================================
 
 COMPILER = gnu
-DEBUG    = no 
+DEBUG    = yes 
 PROFILE  = no
 OPTIMIZE = no
 USE_MPI  = no 
@@ -34,7 +34,7 @@ ifeq ($(COMPILER),gnu)
   # Debugging
   ifeq ($(DEBUG),yes)
     F90FLAGS += -g -Wall -pedantic -fbounds-check \
-                -ffpe-trap=invalid,overflow,underflow,zero
+                -ffpe-trap=invalid,overflow,underflow,zero -DDEBUG
     LDFLAGS  += -g
   endif
 
@@ -152,7 +152,7 @@ endif
 # Use MPI for parallelism
 
 ifeq ($(USE_MPI),yes)
-  MPI_ROOT = /opt/mpich2/1.4.1-$(COMPILER)
+  MPI_ROOT = /usr/
   F90 = $(MPI_ROOT)/bin/mpif90
   F90FLAGS += -DMPI
 endif

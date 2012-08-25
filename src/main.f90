@@ -34,6 +34,7 @@ program main
 !>
 !==============================================================================!
 
+
   implicit none
 
   ! Added by S. Xu for debug  
@@ -72,44 +73,137 @@ contains
   subroutine initialize()
 
     use hdf5
-
-    ! added by S. Xu
-    use parameters,        only: emin,emax
-
-    use global,    only: seed,allocate_problem,mat,tal,time_init !,    &
-!   &                     compute_macro_cross_sections  ! commented out by S. Xu
-    use input,     only: read_input
-    use materials, only: compute_macroxs, doppler_broaden_xs ! last added by S. Xu
+    use global
+    use execute,   only: allocate_problem
+    use materials, only: compute_macro_xs, doppler_broaden
     use output,    only: print_heading
     use timing,    only: timer_start,timer_stop
+    use random_lcg, only: initialize_prng
+    use input,     only: read_input
+
+#ifdef MPI
+    use mpi
+#endif
 
     ! local variables
     integer :: error ! hdf5 error
     real(8) :: rn    ! initial random number
 
-    ! begin timer
-    call timer_start(time_init)
+!    ! begin timer
+!    call timer_start(time_init)
 
-    ! initialize the fortran hdf5 interface
-    call h5open_f(error)
+    ! Setup MPI
+    call setup_mpi()
 
-    ! print heading information
-    call print_heading()
+    if (master) then
+      ! initialize the fortran hdf5 interface
+      call h5open_f(error)
+
+      ! print heading information
+      call print_heading()
+
+!output debug information
+#ifdef DEBUG
+    open(404, file='MPI_DEBUG.txt', status='unknown')
+#endif
+
+    end if
 
     ! read input
     call read_input()
 
-    ! initalize random number generator
-    rn = rand(seed)
+!    ! initalize random number generator
+!    rn = rand(seed)
+
+    ! Initialize random number generator
+    call initialize_prng()
 
 ! commented out by S. Xu (Apr. 2012)
 !    ! precompute macroscopic cross section of materials
 !    call compute_macro_cross_sections()
 
-    ! end timer
-    call timer_stop(time_init)
+!    ! end timer
+!    call timer_stop(time_init)
 
   end subroutine initialize
+
+
+!===============================================================================
+! SETUP_MPI initilizes the Message Passing Interface (MPI) and determines the
+! number of processors the problem is being run with as well as the rank of each
+! processor.
+!===============================================================================
+
+  subroutine setup_mpi()
+
+    use global,    only: rank,n_procs,master,mpi_err
+
+#ifdef MPI
+    use mpi
+#endif
+
+#ifdef MPI
+!    integer        :: bank_blocks(5) ! Count for each datatype
+!    integer        :: bank_types(5)  ! Datatypes
+!    integer(MPI_ADDRESS_KIND) :: bank_disp(5)   ! Displacements
+!    type(Bank)     :: b
+
+!    mpi_enabled = .true.
+
+    ! Initialize MPI
+    call MPI_INIT(mpi_err)
+    if (mpi_err /= MPI_SUCCESS) then
+       print *, "Failed to initialize MPI."
+       stop
+    end if
+
+    ! Determine number of processors
+    call MPI_COMM_SIZE(MPI_COMM_WORLD, n_procs, mpi_err)
+    if (mpi_err /= MPI_SUCCESS) then
+       print*, "Could not determine number of processors."
+       stop
+    end if
+
+    ! Determine rank of each processor
+    call MPI_COMM_RANK(MPI_COMM_WORLD, rank, mpi_err)
+    if (mpi_err /= MPI_SUCCESS) then
+       print *, "Could not determine MPI rank."
+       stop
+    end if
+
+    ! Determine master
+    if (rank == 0) then
+       master = .true.
+    else
+       master = .false.
+    end if
+
+!    ! Determine displacements for MPI_BANK type
+!    call MPI_GET_ADDRESS(b % id,  bank_disp(1), mpi_err)
+!    call MPI_GET_ADDRESS(b % wgt, bank_disp(2), mpi_err)
+!    call MPI_GET_ADDRESS(b % xyz, bank_disp(3), mpi_err)
+!    call MPI_GET_ADDRESS(b % uvw, bank_disp(4), mpi_err)
+!    call MPI_GET_ADDRESS(b % E,   bank_disp(5), mpi_err)
+
+!    ! Adjust displacements 
+!    bank_disp = bank_disp - bank_disp(1)
+!    
+!    ! Define MPI_BANK for fission sites
+!    bank_blocks = (/ 1, 1, 3, 3, 1 /)
+!    bank_types = (/ MPI_INTEGER8, MPI_REAL8, MPI_REAL8, MPI_REAL8, MPI_REAL8 /)
+!    call MPI_TYPE_CREATE_STRUCT(5, bank_blocks, bank_disp, & 
+!         bank_types, MPI_BANK, mpi_err)
+!    call MPI_TYPE_COMMIT(MPI_BANK, mpi_err)
+
+#else
+    ! if no MPI, set processor to master
+!    mpi_enabled = .false.
+    rank = 0
+    n_procs = 1
+    master = .true.
+#endif
+
+  end subroutine setup_mpi
 
 !===============================================================================
 ! RUN_PROBLEM
@@ -118,24 +212,37 @@ contains
 
   subroutine run_problem()
 
-    ! added by S. Xu
-    use parameters,        only: emin
-
-    use global,    only: nhistories,mat,neut, bank_tallies,time_run, &
-        &  compute_macro_cross_sections, doppler_broaden   ! last two added by S. Xu
+    use global
+    use materials, only: doppler_broaden, compute_macro_xs
+    use tally,     only: bank_tallies
     use particle,  only: init_particle
     use physics,   only: sample_source,perform_physics !,get_eidx !commented out by S. Xu
     use timing,    only: timer_start,timer_stop
+    use random_lcg, only: set_particle_seed
+
+#ifdef MPI
+    use mpi
+#endif
 !    use on_the_fly_xs_gen, only: doppler_broaden
 
     ! local variables
-    integer :: i  ! iteration counter
+    integer(8) :: i  ! iteration counter
 
-    ! begin timer
-    call timer_start(time_run)
+!    ! begin timer
+!    call timer_start(time_run)
+
+! every processor should know the number of history by reading it from either command line or input file
+!#ifdef MPI
+!    if (master) then
+!      call MPI_BCAST(nhistories, 1, MPI_INTEGER8, 0, MPI_COMM_WORLD, mpi_err)
+!    end if
+!#endif
 
     ! begin loop over histories
-    do i = 1,nhistories
+    do i = rank + 1, nhistories, n_procs
+
+      ! set the seed for random number generator for each particle history
+      call set_particle_seed(i)
 
       ! intialize history
       call init_particle(neut)
@@ -160,7 +267,7 @@ contains
         call doppler_broaden()
 
         ! compute macroscopic xs
-        call compute_macro_cross_sections()
+        call compute_macro_xs()
 !-----------------------------------------------------------------------
 
         ! perform physics and also records collision tally
@@ -171,15 +278,17 @@ contains
       ! neutron is dead if out of transport loop (ecut or absorb) --> bank tally
       call bank_tallies()
 
-      ! print update to user
-      if (mod(i,nhistories/10) == 0) then
-        write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
+      if (master) then
+        ! print update to user
+        if (mod(i,nhistories/10) <= n_procs-1) then
+          write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
+        end if
       end if
 
     end do
 
-    ! end timer
-    call timer_stop(time_run)
+!    ! end timer
+!    call timer_stop(time_run)
 
 
   end subroutine run_problem
@@ -191,29 +300,51 @@ contains
 
   subroutine finalize()
 
-    use global, only: finalize_tallies,deallocate_problem, res_intg, compute_res_intg
+    use global
+    use execute, only: deallocate_problem
+    use tally,  only: reduce_tallies, finalize_tallies
     use hdf5
     use output, only: write_output
+
+#ifdef MPI
+    use mpi
+#endif
 
     ! local variables
     integer :: error ! hdf5 error
 
-    ! calculate statistics on tallies
-    call finalize_tallies()
-    
-    ! compute resonance integral
-    if (res_intg) then
-      call compute_res_intg()
-    end if
+    call reduce_tallies()
 
-    ! write output
-    call write_output()
- 
+
+    if (master) then
+
+      ! calculate statistics on tallies
+      call finalize_tallies()
+
+!      ! compute resonance integral
+!      if (res_intg) then
+!        call compute_res_intg()
+!      end if
+
+      ! write output
+      call write_output()
+
+      ! close the fortran interface
+      call h5close_f(error)
+
+! close debug output
+#ifdef DEBUG
+    close(404)
+#endif
+    end if 
+
     ! deallocate problem
     call deallocate_problem()
 
-    ! close the fortran interface
-    call h5close_f(error)
+#ifdef MPI
+    ! shut down MPI
+    call MPI_Finalize(mpi_err)
+#endif
 
   end subroutine finalize
 

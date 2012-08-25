@@ -8,30 +8,10 @@
 
 module tally
 
+!  use tally_header, only: tally_type
+  use global
+
   implicit none
-  private
-  public :: set_spectrum_tally,add_to_tally,bank_tally,deallocate_tally,       &
- &          set_user_tally,calculate_statistics,set_kinf_tally,write_res_intg
-
-  type, public :: tally_type
-
-    real(8), allocatable :: E(:)      ! user defined energy structure
-    real(8), allocatable :: val(:,:)    ! the temporary value
-    real(8), allocatable :: sum(:,:)    ! the sum for the mean and var
-    real(8), allocatable :: sum_sq(:,:) ! the sum for the variable
-    real(8), allocatable :: mean(:,:)   ! mean of tallies
-    real(8), allocatable :: std(:,:)    ! standard deviation of tallies
-    logical :: flux_tally = .false.   ! is this the flux tally
-    integer :: nbins                  ! number of tally regions
-    real(8) :: width                  ! the uniform width
-    real(8) :: emax                   ! max e
-    real(8) :: emin                   ! min e
-    integer :: react_type             ! reaction type id
-    integer :: isotope                ! isotope number
-    integer :: region                 ! region for micros
-    logical :: dv = .false.           ! divide by volume of regions
-
-  end type tally_type
 
 contains
 
@@ -165,15 +145,100 @@ contains
 
   end subroutine set_kinf_tally
 
+
+!===============================================================================
+! ADD_TO_TALLIES
+!> @brief routine that adds temporary value to tallies
+!===============================================================================
+
+  subroutine add_to_tallies()
+
+
+    ! local variables
+    integer :: i            ! loop counter
+    real(8) :: fact = 1.0_8 ! multiplier factor
+    real(8) :: totxs        ! total macroscopic xs of material
+    real(8) :: mubar        ! average cosine scattering angle
+
+!    ! compute macroscopic cross section
+!    totxs = sum(mat(neut%region)%totalxs(eidx,:))
+
+    totxs = sum(mat(neut%region)%xs_Total_brdn)
+
+    ! begin loop over tallies
+    do i = 1,n_tallies
+
+      ! set multiplier
+      select case(tal(i)%react_type)
+
+        ! flux only
+        case(0)
+          fact = 1.0_8
+
+        ! total 
+        case(1)
+          fact = totxs
+
+        ! absorption
+        case(2)
+!          fact = sum(mat(neut%region)%absorxs(eidx,:))
+          fact = sum(mat(neut%region)%xs_Absb_brdn)
+
+        ! scattering
+        case(3)
+!          fact = sum(mat(neut%region)%scattxs(eidx,:))
+          fact = sum(mat(neut%region)%xs_Scat_brdn)
+
+        ! nufission
+        case(4)
+!          fact = nubar*sum(mat(neut%region)%fissixs(eidx,:))
+          fact = nubar*sum(mat(neut%region)%xs_Fiss_brdn)
+
+        ! fission
+        case(5)
+!          fact = sum(mat(neut%region)%fissixs(eidx,:))
+          fact = sum(mat(neut%region)%xs_Fiss_brdn)
+
+        ! diffusion coefficient
+        case(6)
+!          fact = 1._8/(3._8*sum(mat(neut%region)%transxs(eidx,:)))
+          fact = 1._8/(3._8*sum(mat(neut%region)%xs_Tran_brdn))
+
+        ! transport 
+        case(7)
+!          fact = sum(mat(neut%region)%transxs(eidx,:))
+          fact = sum(mat(neut%region)%xs_Tran_brdn)
+
+        ! micro capture
+        case(8)
+          if (neut%region == tal(i)%region) then
+!            fact = mat(neut%region)%isotopes(tal(i)%isotope)%xs_capt(eidx)
+            fact = mat(neut%region)%isotopes(tal(i)%isotope)%xs_capt_brdn
+
+          else
+            cycle
+          end if 
+
+        ! default is flux tally
+        case DEFAULT
+          fact = 1.0_8
+
+      end select
+
+      ! call routine to add tally
+      call add_to_tally(tal(i),fact,totxs,neut%E,neut%region)
+
+    end do
+
+  end subroutine add_to_tallies
+
 !===============================================================================
 ! ADD_TO_TALLY
 !> @brief routine to add quantities during transport of a particle 
 !===============================================================================
 
   subroutine add_to_tally(this,fact,totxs,E,region)
-    
-!    ! use binary search (Added by S. Xu, Apr. 2012)
-!    use BiSearch, only: binarySearch
+
 
     ! formal variables
     type(tally_type) :: this     ! a tally 
@@ -223,23 +288,164 @@ contains
   end subroutine add_to_tally
 
 !===============================================================================
-! BANK_TALLY
-!> @brief routine to bank a histories tallies
+! BANK_TALLIES
+!> @brief routine that record temporary history information in tallies 
 !===============================================================================
 
-  subroutine bank_tally(this)
+  subroutine bank_tallies()
 
-    ! formal variables
-    type(tally_type) :: this ! a tally
+!    ! formal variables
+!    type(tally_type) :: this ! a tally
 
-    ! record to sums
-    this%sum    = this%sum    + this%val
-    this%sum_sq = this%sum_sq + this%val**2
+    integer  :: i
 
-    ! zero out temp value
-    this%val = 0.0_8
+    do i = 1, n_tallies
+        ! record to sums
+        tal(i)%sum    = tal(i)%sum    + tal(i)%val
+        tal(i)%sum_sq = tal(i)%sum_sq + tal(i)%val**2
 
-  end subroutine bank_tally
+!#ifdef DEBUG
+!    if (master) then
+!        write(404, *) tal(i)%val
+!        write(404, *) tal(i)%sum
+!    end if
+!#endif
+
+        ! zero out temp value
+        tal(i)%val = 0.0_8
+
+    end do
+
+  end subroutine bank_tallies
+
+
+!===============================================================================
+! REDUCE_TALLIES
+!> @brief routine to reduce tally across different processors
+!===============================================================================
+
+  subroutine reduce_tallies()
+
+
+#ifdef MPI
+    use mpi
+#endif
+
+    ! local variable
+    integer  :: i
+    integer  :: data_count
+
+#ifdef MPI    
+    do i = 1, n_tallies
+        data_count = n_materials*tal(i)%nbins
+
+#ifdef DEBUG
+  write(*, *) 'i = ', i, 'data_count = ', data_count, "from processor ", rank
+#endif
+
+        call MPI_REDUCE(tal(i)%sum, reduced_tal(i)%sum, data_count, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+
+    if (mpi_err /= MPI_SUCCESS) then
+       print *, "Failed to reduce tal(", i, ")%sum."
+       stop
+    end if
+
+        call MPI_REDUCE(tal(i)%sum_sq, reduced_tal(i)%sum_sq, data_count, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+
+    if (mpi_err /= MPI_SUCCESS) then
+       print *, "Failed to reduce tal(", i, ")%sum_sq."
+       stop
+    end if
+
+
+#ifdef DEBUG
+  if (master) then
+      write(404, *) 'tal(', i, ')%sum size: ', size(tal(i)%sum), 'reduced_tal(', i, ')%sum size: ', &
+                    &  size(reduced_tal(i)%sum), 'data_count = ', data_count, "from processor ", rank
+  end if
+#endif
+
+    end do
+
+    call MPI_REDUCE(n_abs, reduced_n_abs, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+    call MPI_REDUCE(n_fiss, reduced_n_fiss, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+
+#ifdef DEBUG
+  if (master) then
+    write(404, *) 'n_abs = ', n_abs, ' reduced_n_abs = ', reduced_n_abs, "from processor ", rank
+  end if
+#endif
+
+#ifdef DEBUG
+  if (master) then
+      write(404, *) 'tal(1)%sum : ', tal(1)%sum,  "from processor ", rank
+      write(404, *) 'reduced_tal(1)%sum: ', reduced_tal(1)%sum, ' from processor ', rank
+  if (master) then
+#endif
+
+#else
+    do i = 1, n_tallies
+        reduced_tal(i)%sum = tal(i)%sum
+        reduced_tal(i)%sum_sq = tal(i)%sum_sq
+    end do
+
+    reduced_n_abs = n_abs
+    reduced_n_fiss = n_fiss
+#endif
+
+  end subroutine reduce_tallies
+
+
+!===============================================================================
+! FINALIZE_TALLIES
+!> @brief routine that calls another routine to compute tally statistics
+!===============================================================================
+
+  subroutine finalize_tallies()
+
+    ! local variables
+    integer :: i ! loop counter
+    integer :: j ! loop counter
+
+
+#ifdef DEBUG
+  write(404, *) ' nhistories = ', nhistories, ' n_tallies = ', n_tallies, "from processor ", rank
+#endif
+
+    ! begin loop over tallies
+    do i = 1, 1
+
+#ifdef DEBUG
+  write(404, *) 'reduced_tal(', i, ')%sum = ', reduced_tal(i)%sum, ' nhistories = ', nhistories, "from processor ", rank
+#endif
+      ! call routine to compute statistics
+      call calculate_statistics(reduced_tal(i),nhistories)
+
+      ! normalize by volumes and histories if flux tally
+      if (reduced_tal(i)%flux_tally .or. reduced_tal(i)%dv) then
+        do j = 1,n_materials
+          reduced_tal(i)%mean(:,j) = reduced_tal(i)%mean(:,j) / mat(j)%vol
+        end do
+      end if
+
+    end do
+
+    ! compute k_inf
+    ana_kinf_mean = dble(reduced_n_fiss)*nubar/dble(nhistories)
+    ana_kinf_std  = nubar*sqrt((dble(reduced_n_fiss)/dble(nhistories) -                &
+   &                (dble(reduced_n_fiss)/dble(nhistories))**2)/dble(nhistories-1))
+    col_kinf_mean = sum(reduced_tal(n_tallies)%mean)
+    col_kinf_std  = sum(reduced_tal(n_tallies)%std)
+
+! !Added by S. Xu (May. 2012)
+!    col_kinf_mean_2 = sum(tal(6)%mean)
+!    col_kinf_std_2  = sum(tal(6)%std)
+!
+!    reaction_tally(1) = sum(tal(2)%mean)
+!    reaction_tally(2) = sum(tal(3)%mean)
+!    reaction_tally(3) = sum(tal(4)%mean)
+
+  end subroutine finalize_tallies
 
 !===============================================================================
 ! CALCULATE_STATISTICS
@@ -250,13 +456,21 @@ contains
 
     ! formal variables
     type(tally_type) :: this ! a tally
-    integer          :: n    ! number of histories run
+    integer(8)          :: n    ! number of histories run
+
+#ifdef DEBUG
+  write(404, *) 'sum = ', this%sum, ' nhistories = ', n, "from processor ", rank
+#endif
 
     ! compute mean
     this%mean =  this%sum / dble(n)
 
     ! compute standard deviation
     this%std = sqrt((this%sum_sq/dble(n) - this%mean**2)/dble(n-1))
+
+#ifdef DEBUG
+  write(404, *) this%mean, this%std, "from processor ", rank
+#endif
 
   end subroutine calculate_statistics
 

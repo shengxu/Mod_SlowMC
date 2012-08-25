@@ -21,29 +21,21 @@ contains
 
   subroutine read_input
     
-    ! added by S. Xu
-    use parameters,        only: emin,emax
-
-    use global,           only: nhistories,seed,source_type,sample_per_xs,mat, & !emin,emax,     & ! commented out by S. Xu
-   &                            allocate_problem,tal,n_tallies,n_materials,    &
-   &                            res_iso,Dancoff,radius, output_filename, output_path, &
-   &                            res_intg,res_intg_inf
+    use global
+    use execute,          only: allocate_problem
     use materials,        only: setup_material,load_source,load_isotope
-    use tally,            only: set_user_tally,set_spectrum_tally,             &
-   &                            set_kinf_tally
+    use tally,            only: set_user_tally,set_spectrum_tally, set_kinf_tally
     use xml_data_input_t
-! Added by S. Xu (Apr. 2012)
-    use constants, only: PI, K_BOLTZMANN, M_NUCLEON
-    use parameters, only: T
+
+!    use constants, only: PI, K_BOLTZMANN, M_NUCLEON
 
 
     ! local variables
     logical                        :: file_exists  ! see if file exists
-    character(len=255)             :: filename     ! filename to open
+    character(len=255)             :: path    
     real(8)                        :: N            ! temp number dens
     real(8)                        :: A            ! temp atomic weight
     real(8)                        :: vol          ! volume of region
-    character(len=255)             :: path         ! path to isotope file
     character(len=255)             :: name         ! name of isotope
     logical                        :: thermal      ! contains thermal lib
     integer                        :: i            ! iteration counter
@@ -83,36 +75,29 @@ contains
           read(arg_str, *) sample_per_xs
           samplexs_from_cmdline = .true.
         case default
-          print *, 'Input argument should be less than or equal to 2'
+          print *, 'Input argument should be less than or equal to 3'
       end select
       i = i + 1
     end do
-      
-!    n_arg = command_argument_count()
-!    if (n_arg == 0) then
-!      filename = "input.xml"
-!    else if(n_arg == 1) then
-!      call get_command_argument(1, filename)
-!    else if(n_arg == 2) then
-!      call get_command_argument(2, arg_str)
-!      read(arg_str, *) nhistories
-!      nhist_from_cmdline = .true.
-!    else
-!      write(*,*) "Too many input argument!"
-!    end if
-    
-    write(*,'("Input file: ", A/)') trim(filename)
+
+    if (master) then
+      write(*,'("Input file: ", A/)') trim(filename)
+    end if
     
     output_filename = filename(1:(len(trim(filename))-4))
 
     inquire(FILE=trim(filename), EXIST=file_exists)
     if (.not. file_exists) then
-      write(*,*) 'Cannot read input file!'
+      if (master) then
+        write(*,*) 'Cannot read input file!'
+      end if
       stop
     else
   
       ! tell user
-      write(*,'(A/)') "Reading INPUT XML file..."
+      if (master) then
+        write(*,'(A/)') "Reading INPUT XML file..."
+      end if
 
     end if
 
@@ -129,11 +114,14 @@ contains
     if (.not. nhist_from_cmdline) then
       nhistories = settings_%histories
     end if
-    write(*,'(A,i15/)') "number of history: ", nhistories
+
+    if (master) then
+      write(*,'(A,i15/)') "number of history: ", nhistories
 
     ! get the neutron histories to output file name
-    write(nhist_power, '(i1)') int(log10(dble(nhistories)))
-    write(nhist_1digt, '(i1)') int(nhistories/10**log10(dble(nhistories)))
+      write(nhist_power, '(i1)') int(log10(dble(nhistories)))
+      write(nhist_1digt, '(i1)') int(nhistories/10**log10(dble(nhistories)))
+    end if
 !print *, nhist_1digt, nhist_power
 
     if (nhist_from_cmdline) then
@@ -143,9 +131,12 @@ contains
     if ( (.not. samplexs_from_cmdline) .and. (settings_%sample_per_xs/= 0) ) then
       sample_per_xs = settings_%sample_per_xs
     end if
-    write(*,'(A,i15/)') "number of sample per xs data: ", sample_per_xs
 
-    write(samplexs_str,'(i3.3)') sample_per_xs
+    if (master) then
+      write(*,'(A,i15/)') "number of sample per xs data: ", sample_per_xs
+
+      write(samplexs_str,'(i3.3)') sample_per_xs
+    end if
 
 !write(*, *) samplexs_str
 
@@ -159,19 +150,22 @@ contains
     ! check output directory (not sure if there is better approach)
 !print *, 'try another:',trim(settings_%output_path)//'/'
     output_path = './'//trim(settings_%output_path)//'/'
-    write(*, '(A, A/)'), 'output_path = ', trim(output_path)
-    inquire(FILE=trim(output_path), EXIST=file_exists)
-    if (.not. file_exists) then
-      call system('mkdir '//trim(output_path))
-    end if
+    if (master) then
+      write(*, '(A, A/)'), 'output_path = ', trim(output_path)
 
+      inquire(FILE=trim(output_path), EXIST=file_exists)
+      if (.not. file_exists) then
+        call system('mkdir '//trim(output_path))
+      end if
+
+    end if
     
     
     ! Added by S. Xu (Apr. 2012) for doppler broadening
     T = settings_%temperature
 
-    ! for resonance integral
-    res_intg = settings_%res_intg
+!    ! for resonance integral
+!    res_intg = settings_%res_intg
 
     ! get size of materials
     n_materials = size(materials_%material)
@@ -191,13 +185,17 @@ contains
 
       ! get number of isotopes and volume
       nisotopes = size(materials_%material(i)%nuclides)
-      vol = materials_%material(i)%V
+      
 
       ! set homogeneous volume
-      if (trim(materials_%material(i)%type)=='homogeneous') vol = 1.0_8
+      if (trim(materials_%material(i)%type)=='homogeneous') then
+        vol = 1.0_8
+      else
+        vol = materials_%material(i)%V
+      end if
 
       ! set up the material object
-      call setup_material(mat(i),emin,emax,nisotopes,vol)
+      call setup_material(mat(i), emin, emax, nisotopes, vol)
 
       ! begin loop over isotope materials
       do j = 1,mat(i)%nisotopes
@@ -215,7 +213,9 @@ contains
 
           ! check volume
           if (abs(vol - 0.0_8) < 1e-10_8) then
-            write(*,*) 'Please enter a physical fuel volume!'
+            if (master) then
+              write(*,*) 'Please enter a physical fuel volume!'
+            end if
             stop
           end if
 
@@ -223,7 +223,9 @@ contains
 
           ! check volume
           if (abs(vol - 0.0_8) < 1e-10_8) then
-            write(*,*) 'Please enter a physical moderator volume!'
+            if (master) then
+              write(*,*) 'Please enter a physical moderator volume!'
+            end if
             stop
           end if
 
@@ -270,10 +272,11 @@ contains
       select case(trim(tallies_%tally(i)%type))
         case('flux')
           react_type = 0
-          ! for resonance integral
-          if (res_intg) then
-            res_intg_inf(2) = i
-          end if
+
+!          ! for resonance integral
+!          if (res_intg) then
+!            res_intg_inf(2) = i
+!          end if
 
         case('total')
           react_type = 1
@@ -293,10 +296,12 @@ contains
           react_type = 8
           isotope = tallies_%tally(i)%isotope
           region = tallies_%tally(i)%region
-          ! for resonance integral
-          if (res_intg) then
-            res_intg_inf(1) = i
-          end if
+
+!          ! for resonance integral
+!          if (res_intg) then
+!            res_intg_inf(1) = i
+!          end if
+
         case DEFAULT
           react_type = 0
       end select
@@ -312,6 +317,10 @@ contains
       call set_user_tally(tal(i),Ebins,nbins,react_type,isotope,region,  &
      &                    n_materials,dv)
 
+      ! set up user-defined tallies
+      call set_user_tally(reduced_tal(i),Ebins,nbins,react_type,isotope,region,  &
+     &                    n_materials,dv)
+
       ! deallocate Ebins
       if(allocated(Ebins)) deallocate(Ebins)
 
@@ -322,10 +331,13 @@ contains
 
     ! set up spectrum tally
     call set_spectrum_tally(tal(n_tallies-1),emax,emin,n_materials)
+    ! set up reduced_tally
+    call set_spectrum_tally(reduced_tal(n_tallies-1),emax,emin,n_materials)
 
     ! set up k_inf tally
     call set_kinf_tally(tal(n_tallies),emax,emin,n_materials)
-
+    ! set up reduced_tally
+    call set_kinf_tally(reduced_tal(n_tallies),emax,emin,n_materials)
 
   end subroutine read_input
 

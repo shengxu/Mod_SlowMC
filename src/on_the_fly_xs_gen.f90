@@ -58,7 +58,7 @@ contains
   subroutine energy_doppler_broadened(v, alpha_MB, v_brdn)
     
     use constants, only: M_NEUT, PI
-    use parameters, only: vmin
+    use global,    only: vmin
 
     ! local variables
     real(8), intent(in)        :: v         ! incident neutron velocity
@@ -72,7 +72,7 @@ contains
     real(8)  :: uplimit   ! uplimit for rejection sampling
     
     ! sample relative
-    rn = rand(0)
+    rn = rand()
 !    theta = PI*rn
     mu = 2._8*rn-1._8
     
@@ -81,9 +81,9 @@ contains
     uplimit = 1.0001_8*pdf_MB(v_most_prob, alpha_MB)
 
     do while (.true.)
-      rn = rand(0)
+      rn = rand()
       v_target = 20.0_8*v_most_prob*rn  ! sample a velocity interval of [0, 20]*v_most_probable
-      rn = rand(0)
+      rn = rand()
       if (uplimit*rn < pdf_MB(v_target, alpha_MB)) exit
     end do
 
@@ -118,7 +118,7 @@ contains
 !    v_inc = sqrt(2*E/M_NEUT)
 !
 !    ! sample relative
-!    rn = rand(0)
+!    rn = rand()
 ! !   theta = PI*rn
 !    mu = 2._8*rn-1._8
 !
@@ -127,9 +127,9 @@ contains
 !    uplimit = 1.0001_8*pdf_MB(v_most_prob, alpha_MB)
 !
 !    do while (.true.)
-!      rn = rand(0)
+!      rn = rand()
 !      v_target = 20.0_8*v_most_prob*rn  ! sample a velocity interval of [0, 20]*v_most_probable
-!      rn = rand(0)
+!      rn = rand()
 !      if (uplimit*rn < pdf_MB(v_target, alpha_MB)) exit
 !    end do
 !

@@ -8,9 +8,9 @@
 
 module physics
 
+  use global
+
   implicit none
-  private
-  public :: sample_source,perform_physics !,get_eidx ! commented out by S. Xu
 
 contains
 
@@ -21,14 +21,20 @@ contains
 
   subroutine sample_source()
 
-    use global, only: mat,neut
+!    use global, only: mat,neut
 
     ! local variables
     integer :: idx ! index for sampling
     real(8) :: rn  ! sampled random number
 
     ! sample a random number
-    rn = rand(0)
+    rn = rand()
+    
+!#ifdef DEBUG
+!    if (master) then
+!        print*, rn
+!    end if
+!#endif
 
     ! compute index in cdf
     idx = ceiling(rn / mat(1)%source%cdf_width) + 1
@@ -53,7 +59,8 @@ contains
 
   subroutine perform_physics()
 
-    use global, only: neut,add_to_tallies,n_abs,n_fiss
+    use global, only: neut,n_abs,n_fiss
+    use tally,  only: add_to_tallies
 
     ! sample region
     neut%region = sample_region()
@@ -174,7 +181,7 @@ contains
      &            (sum(mat(2)%xs_Total_brdn)*mat(2)%vol)
 
       ! sample random number
-      rn = rand(0)
+      rn = rand()
 
       ! figure out what region currently in and sample accordingly
       if (neut%region == 1) then
@@ -241,7 +248,7 @@ contains
     end do
 
     ! sample random number
-    rn = rand(0)
+    rn = rand()
 
     ! do linear table search on cdf to find which isotope
     do i = 1,size(cdf)
@@ -306,7 +313,7 @@ contains
     end do
 
     ! sample random number
-    rn = rand(0)
+    rn = rand()
 
     ! perform linear table search
     do i = 1,4
@@ -334,10 +341,9 @@ contains
 
   subroutine elastic_scattering(region,isoidx)
 
-    use global, only: neut,mat,kT    
+    use global, only: neut,mat,kT, T    
     ! Added by S. Xu (May 2012)    
     use constants, only: K_BOLTZMANN, ONE
-    use parameters, only: T  
 
 
     ! formal variables
@@ -354,7 +360,7 @@ contains
     real(8), allocatable :: Evec(:)
 
     ! sample random number
-    rn = rand(0)
+    rn = rand()
 
     ! check for thermal scattering
     if (neut%E < 4e-6_8 .and. mat(region)%isotopes(isoidx)%thermal) then

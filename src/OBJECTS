@@ -1,15 +1,18 @@
 objects = \
 constants.o \
-parameters.o \
 BiSearch.o \
 LinearInterpolation.o \
+execute.o \
 global.o \
 on_the_fly_xs_gen.o\
 input.o \
 main.o \
 materials.o \
+material_header.o \
 output.o \
 particle.o \
 physics.o \
 tally.o \
-timing.o
+tally_header.o \
+timing.o \
+random_lcg.o
