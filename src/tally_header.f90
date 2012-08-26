@@ -7,8 +7,8 @@ module tally_header
 
     real(8), allocatable :: E(:)      ! user defined energy structure
     real(8), allocatable :: val(:,:)    ! the temporary value
-    real(8), allocatable :: sum(:,:)    ! the sum for the mean and var
-    real(8), allocatable :: sum_sq(:,:) ! the sum for the variable
+    real(8), allocatable :: sum0(:,:)    ! the sum for the mean and var
+    real(8), allocatable :: sum0_sq(:,:) ! the sum for the variable
     real(8), allocatable :: mean(:,:)   ! mean of tallies
     real(8), allocatable :: std(:,:)    ! standard deviation of tallies
     logical :: flux_tally = .false.   ! is this the flux tally

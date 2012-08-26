@@ -56,8 +56,8 @@ contains
 
     ! preallocate vectors
     if(.not.allocated(this%val)) allocate(this%val(nbins,n_materials))
-    if(.not.allocated(this%sum)) allocate(this%sum(nbins,n_materials))
-    if(.not.allocated(this%sum_sq)) allocate(this%sum_sq(nbins,n_materials))
+    if(.not.allocated(this%sum0)) allocate(this%sum0(nbins,n_materials))
+    if(.not.allocated(this%sum0_sq)) allocate(this%sum0_sq(nbins,n_materials))
 
     ! preallocate mean and stdev
     if (.not.allocated(this%mean)) allocate(this%mean(nbins,n_materials))
@@ -65,8 +65,8 @@ contains
 
     ! zero out tallies
     this%val = 0.0_8
-    this%sum = 0.0_8
-    this%sum_sq = 0.0_8
+    this%sum0 = 0.0_8
+    this%sum0_sq = 0.0_8
 
   end subroutine set_user_tally
 
@@ -92,8 +92,8 @@ contains
 
     ! preallocate vectors
     if(.not.allocated(this%val)) allocate(this%val(5000,n_materials))
-    if(.not.allocated(this%sum)) allocate(this%sum(5000,n_materials))
-    if(.not.allocated(this%sum_sq)) allocate(this%sum_sq(5000,n_materials))
+    if(.not.allocated(this%sum0)) allocate(this%sum0(5000,n_materials))
+    if(.not.allocated(this%sum0_sq)) allocate(this%sum0_sq(5000,n_materials))
 
     ! preallocate mean and stdev
     if (.not.allocated(this%mean)) allocate(this%mean(5000,n_materials))
@@ -101,8 +101,8 @@ contains
 
     ! zero out tallies
     this%val = 0.0_8
-    this%sum = 0.0_8
-    this%sum_sq = 0.0_8
+    this%sum0 = 0.0_8
+    this%sum0_sq = 0.0_8
 
   end subroutine set_spectrum_tally
 
@@ -125,14 +125,15 @@ contains
     ! set energy structure
     this%E(1) = emin
     this%E(2) = emax
+    this%nbins = 1
 
     ! set reaction type
     this%react_type = 4
 
     ! preallocate vectors
     if(.not.allocated(this%val)) allocate(this%val(1,n_materials))
-    if(.not.allocated(this%sum)) allocate(this%sum(1,n_materials))
-    if(.not.allocated(this%sum_sq)) allocate(this%sum_sq(1,n_materials))
+    if(.not.allocated(this%sum0)) allocate(this%sum0(1,n_materials))
+    if(.not.allocated(this%sum0_sq)) allocate(this%sum0_sq(1,n_materials))
 
     ! preallocate mean and stdev
     if (.not.allocated(this%mean)) allocate(this%mean(1,n_materials))
@@ -140,8 +141,8 @@ contains
 
     ! zero out tallies
     this%val = 0.0_8
-    this%sum = 0.0_8
-    this%sum_sq = 0.0_8
+    this%sum0 = 0.0_8
+    this%sum0_sq = 0.0_8
 
   end subroutine set_kinf_tally
 
@@ -301,13 +302,13 @@ contains
 
     do i = 1, n_tallies
         ! record to sums
-        tal(i)%sum    = tal(i)%sum    + tal(i)%val
-        tal(i)%sum_sq = tal(i)%sum_sq + tal(i)%val**2
+        tal(i)%sum0    = tal(i)%sum0    + tal(i)%val
+        tal(i)%sum0_sq = tal(i)%sum0_sq + tal(i)%val**2
 
 !#ifdef DEBUG
 !    if (master) then
 !        write(404, *) tal(i)%val
-!        write(404, *) tal(i)%sum
+!        write(404, *) tal(i)%sum0
 !    end if
 !#endif
 
@@ -336,61 +337,67 @@ contains
     integer  :: data_count
 
 #ifdef MPI    
+
+#ifdef DEBUG
+  write(404, *) 'n_tallies = ', n_tallies, ' from processor ', rank
+#endif
     do i = 1, n_tallies
         data_count = n_materials*tal(i)%nbins
 
+!#ifdef DEBUG
+!  write(*, *) 'i = ', i, 'n_materials = ', n_materials, 'tal(i)%nbins = ', tal(i)%nbins, "from processor ", rank
+!  write(*, *) 'i = ', i, 'data_count = ', data_count, "from processor ", rank
+!#endif
+
 #ifdef DEBUG
-  write(*, *) 'i = ', i, 'data_count = ', data_count, "from processor ", rank
+  write(404, *) 'tal(', i, ')%sum0 : ', tal(i)%sum0,  "from processor ", rank
+  write(404, *) 'reduced_tal(', i, ')%sum0: ', reduced_tal(i)%sum0, ' from processor ', rank
 #endif
 
-        call MPI_REDUCE(tal(i)%sum, reduced_tal(i)%sum, data_count, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+        call MPI_REDUCE(tal(i)%sum0, reduced_tal(i)%sum0, data_count, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
 
     if (mpi_err /= MPI_SUCCESS) then
-       print *, "Failed to reduce tal(", i, ")%sum."
+       print *, "Failed to reduce tal(", i, ")%sum0."
        stop
     end if
 
-        call MPI_REDUCE(tal(i)%sum_sq, reduced_tal(i)%sum_sq, data_count, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+        call MPI_REDUCE(tal(i)%sum0_sq, reduced_tal(i)%sum0_sq, data_count, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
 
     if (mpi_err /= MPI_SUCCESS) then
-       print *, "Failed to reduce tal(", i, ")%sum_sq."
+       print *, "Failed to reduce tal(", i, ")%sum0_sq."
        stop
     end if
 
 
-#ifdef DEBUG
-  if (master) then
-      write(404, *) 'tal(', i, ')%sum size: ', size(tal(i)%sum), 'reduced_tal(', i, ')%sum size: ', &
-                    &  size(reduced_tal(i)%sum), 'data_count = ', data_count, "from processor ", rank
-  end if
-#endif
 
     end do
 
     call MPI_REDUCE(n_abs, reduced_n_abs, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
     call MPI_REDUCE(n_fiss, reduced_n_fiss, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
 
-#ifdef DEBUG
-  if (master) then
-    write(404, *) 'n_abs = ', n_abs, ' reduced_n_abs = ', reduced_n_abs, "from processor ", rank
-  end if
-#endif
-
-#ifdef DEBUG
-  if (master) then
-      write(404, *) 'tal(1)%sum : ', tal(1)%sum,  "from processor ", rank
-      write(404, *) 'reduced_tal(1)%sum: ', reduced_tal(1)%sum, ' from processor ', rank
-  end if
-#endif
-
 #else
     do i = 1, n_tallies
-        reduced_tal(i)%sum = tal(i)%sum
-        reduced_tal(i)%sum_sq = tal(i)%sum_sq
+        reduced_tal(i)%sum0 = tal(i)%sum0
+        reduced_tal(i)%sum0_sq = tal(i)%sum0_sq
     end do
 
     reduced_n_abs = n_abs
     reduced_n_fiss = n_fiss
+#endif
+
+#ifdef DEBUG
+
+!#ifdef MPI
+!  call MPI_BARRIER(MPI_COMM_WORLD, mpi_err)
+!#endif
+
+  write(404, *) 'tal(1)%sum0 : ', tal(1)%sum0,  "from processor ", rank
+  if (master) then
+
+      write(404, *) 'reduced_tal(1)%sum0: ', reduced_tal(1)%sum0, ' from processor ', rank
+
+      write(404, *) 'n_abs = ', n_abs, ' reduced_n_abs = ', reduced_n_abs, "from processor ", rank
+  end if
 #endif
 
   end subroutine reduce_tallies
@@ -408,16 +415,16 @@ contains
     integer :: j ! loop counter
 
 
-#ifdef DEBUG
-  write(404, *) ' nhistories = ', nhistories, ' n_tallies = ', n_tallies, "from processor ", rank
-#endif
+!#ifdef DEBUG
+!  write(404, *) ' nhistories = ', nhistories, ' n_tallies = ', n_tallies, "from processor ", rank
+!#endif
 
     ! begin loop over tallies
     do i = 1, 1
 
-#ifdef DEBUG
-  write(404, *) 'reduced_tal(', i, ')%sum = ', reduced_tal(i)%sum, ' nhistories = ', nhistories, "from processor ", rank
-#endif
+!#ifdef DEBUG
+!  write(404, *) 'reduced_tal(', i, ')%sum0 = ', reduced_tal(i)%sum0, ' nhistories = ', nhistories, "from processor ", rank
+!#endif
       ! call routine to compute statistics
       call calculate_statistics(reduced_tal(i),nhistories)
 
@@ -458,19 +465,19 @@ contains
     type(tally_type) :: this ! a tally
     integer(8)          :: n    ! number of histories run
 
-#ifdef DEBUG
-  write(404, *) 'sum = ', this%sum, ' nhistories = ', n, "from processor ", rank
-#endif
+!#ifdef DEBUG
+!  write(404, *) 'sum0 = ', this%sum0, ' nhistories = ', n, "from processor ", rank
+!#endif
 
     ! compute mean
-    this%mean =  this%sum / dble(n)
+    this%mean =  this%sum0 / dble(n)
 
     ! compute standard deviation
-    this%std = sqrt((this%sum_sq/dble(n) - this%mean**2)/dble(n-1))
+    this%std = sqrt((this%sum0_sq/dble(n) - this%mean**2)/dble(n-1))
 
-#ifdef DEBUG
-  write(404, *) this%mean, this%std, "from processor ", rank
-#endif
+!#ifdef DEBUG
+!  write(404, *) this%mean, this%std, "from processor ", rank
+!#endif
 
   end subroutine calculate_statistics
 
@@ -488,8 +495,8 @@ contains
     ! deallocate all
     if (allocated(this%E)) deallocate(this%E)
     if (allocated(this%val)) deallocate(this%val)
-    if (allocated(this%sum)) deallocate(this%sum)
-    if (allocated(this%sum_sq)) deallocate(this%sum_sq)
+    if (allocated(this%sum0)) deallocate(this%sum0)
+    if (allocated(this%sum0_sq)) deallocate(this%sum0_sq)
 
   end subroutine deallocate_tally
 

@@ -95,9 +95,11 @@ contains
     ! Setup MPI
     call setup_mpi()
 
-    if (master) then
       ! initialize the fortran hdf5 interface
       call h5open_f(error)
+
+    if (master) then
+
 
       ! print heading information
       call print_heading()
@@ -278,12 +280,12 @@ contains
       ! neutron is dead if out of transport loop (ecut or absorb) --> bank tally
       call bank_tallies()
 
-      if (master) then
-        ! print update to user
-        if (mod(i,nhistories/10) <= n_procs-1) then
-          write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
-        end if
-      end if
+!      if (master) then
+!        ! print update to user
+!        if (mod(i,nhistories/10) <= n_procs-1) then
+!          write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
+!        end if
+!      end if
 
     end do
 
@@ -329,14 +331,15 @@ contains
       ! write output
       call write_output()
 
-      ! close the fortran interface
-      call h5close_f(error)
 
 ! close debug output
 #ifdef DEBUG
     close(404)
 #endif
     end if 
+
+      ! close the fortran interface
+      call h5close_f(error)
 
     ! deallocate problem
     call deallocate_problem()
