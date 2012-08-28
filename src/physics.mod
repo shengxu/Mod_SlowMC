@@ -1,5 +1,5 @@
-GFORTRAN module version '6' created from physics.f90 on Sun Aug 26 11:29:31 2012
-MD5:b9f89b291cb03e36abb5bd69e7352307 -- If you edit this, you'll get what you deserve.
+GFORTRAN module version '6' created from physics.f90 on Tue Aug 28 13:17:27 2012
+MD5:dc743c2013bb847d2097c267bb1be197 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () ()
 () () () ())
@@ -367,11 +367,11 @@ UNKNOWN EXPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
 152 'zero' 'constants' 'zero' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN IMPLICIT-SAVE 0 0) (REAL 8 0 0 REAL ()) 0 0 () (CONSTANT (REAL 8
 0 0 REAL ()) 0 '0.00000000000000@0') () 0 () () () 0 0)
-112 'region' '' 'region' 153 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
-UNKNOWN UNKNOWN 0 0 RESULT) (INTEGER 4 0 0 INTEGER ()) 0 0 () () 0 () ()
-() 0 0)
 108 'region' '' 'region' 107 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN UNKNOWN 0 0 DUMMY) (INTEGER 4 0 0 INTEGER ()) 0 0 () () 0 () ()
+() 0 0)
+112 'region' '' 'region' 153 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
+UNKNOWN UNKNOWN 0 0 RESULT) (INTEGER 4 0 0 INTEGER ()) 0 0 () () 0 () ()
 () 0 0)
 103 'region' '' 'region' 102 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN UNKNOWN 0 0 DUMMY) (INTEGER 4 0 0 INTEGER ()) 0 0 () () 0 () ()
