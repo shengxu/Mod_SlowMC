@@ -280,12 +280,12 @@ contains
       ! neutron is dead if out of transport loop (ecut or absorb) --> bank tally
       call bank_tallies()
 
-!      if (master) then
-!        ! print update to user
-!        if (mod(i,nhistories/10) <= n_procs-1) then
-!          write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
-!        end if
-!      end if
+      if (master) then
+        ! print update to user
+        if (mod(i,nhistories/10) <= n_procs-1) then
+          write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
+        end if
+      end if
 
     end do
 
