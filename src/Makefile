@@ -16,7 +16,7 @@ include OBJECTS
 #===============================================================================
 
 COMPILER = gnu
-DEBUG    = yes 
+DEBUG    = no 
 PROFILE  = no
 OPTIMIZE = no
 USE_MPI  = no 
@@ -27,7 +27,7 @@ USE_HDF5 = yes
 #===============================================================================
 
 ifeq ($(COMPILER),gnu)
-  F90 = gfortran 
+  F90 = /opt/gcc/4.4.1/bin/gfortran 
   F90FLAGS := -cpp -fbacktrace
   LDFLAGS =
 
@@ -58,7 +58,10 @@ ifeq ($(COMPILER),intel)
   F90 = ifort
   F90FLAGS := -cpp -warn -assume byterecl -traceback
   LDFLAGS =
-
+  
+  # redefine HDF5_ROOT
+  export HDF5_ROOT = /opt/hdf5/1.8.9-intel
+  
   # Debugging
   ifeq ($(DEBUG),yes)
     F90FLAGS += -g -ftrapuv -fp-stack-check -check all -fpe0
@@ -152,8 +155,9 @@ endif
 # Use MPI for parallelism
 
 ifeq ($(USE_MPI),yes)
-  MPI_ROOT = /usr/
-  F90 = $(MPI_ROOT)/bin/mpif90
+  MPI_ROOT = /opt/mpich2/1.5b2-intel 
+# F90 = $(MPI_ROOT)/bin/mpif90
+  F90 = /opt/mpich2/1.5b2-intel/bin/mpif90
   F90FLAGS += -DMPI
 endif
 

@@ -6,6 +6,7 @@ global.o: timing.o
 
 on_the_fly_xs_gen.o: constants.o
 on_the_fly_xs_gen.o: global.o
+on_the_fly_xs_gen.o: random_lcg.o
 
 LinearInterpolation.o: BiSearch.o
 
@@ -22,6 +23,7 @@ tally.o: BiSearch.o
 
 physics.o: constants.o
 physics.o: global.o
+physics.o: random_lcg.o
 physics.o: tally.o
 
 input.o: global.o

@@ -9,6 +9,7 @@
 module physics
 
   use global
+  use random_lcg, only: prn
 
   implicit none
 
@@ -28,7 +29,7 @@ contains
     real(8) :: rn  ! sampled random number
 
     ! sample a random number
-    rn = rand()
+    rn = prn()
     
 !#ifdef DEBUG
 !    if (master) then
@@ -181,7 +182,7 @@ contains
      &            (sum(mat(2)%xs_Total_brdn)*mat(2)%vol)
 
       ! sample random number
-      rn = rand()
+      rn = prn()
 
       ! figure out what region currently in and sample accordingly
       if (neut%region == 1) then
@@ -248,7 +249,7 @@ contains
     end do
 
     ! sample random number
-    rn = rand()
+    rn = prn()
 
     ! do linear table search on cdf to find which isotope
     do i = 1,size(cdf)
@@ -313,7 +314,7 @@ contains
     end do
 
     ! sample random number
-    rn = rand()
+    rn = prn()
 
     ! perform linear table search
     do i = 1,4
@@ -360,7 +361,7 @@ contains
     real(8), allocatable :: Evec(:)
 
     ! sample random number
-    rn = rand()
+    rn = prn()
 
     ! check for thermal scattering
     if (neut%E < 4e-6_8 .and. mat(region)%isotopes(isoidx)%thermal) then
