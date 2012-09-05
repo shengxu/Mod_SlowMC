@@ -21,13 +21,20 @@ PROFILE  = no
 OPTIMIZE = no
 USE_MPI  = no 
 USE_HDF5 = yes
+ON_KILKENNY = no
 
 #===============================================================================
 # GNU Fortran compiler options
 #===============================================================================
 
 ifeq ($(COMPILER),gnu)
-  F90 = /opt/gcc/4.4.1/bin/gfortran 
+
+  ifeq ($(ON_KILKENNY), yes)
+    F90 = /opt/gcc/4.4.1/bin/gfortran 
+  else
+    F90 = gfortran
+  endif
+
   F90FLAGS := -cpp -fbacktrace
   LDFLAGS =
 
@@ -48,6 +55,18 @@ ifeq ($(COMPILER),gnu)
   ifeq ($(OPTIMIZE),yes)
     F90FLAGS += -O3
   endif
+
+  # Use MPI for parallelism
+  ifeq ($(USE_MPI),yes)
+    ifeq ($(ON_KILKENNY), yes)
+      MPI_ROOT = /opt/mpich2/1.5b2-intel 
+    else
+      MPI_ROOT = /usr
+    endif
+    F90 = $(MPI_ROOT)/bin/mpif90
+    F90FLAGS += -DMPI
+  endif
+
 endif
 
 #===============================================================================
@@ -78,6 +97,14 @@ ifeq ($(COMPILER),intel)
   ifeq ($(OPTIMIZE),yes)
     F90FLAGS += -O3 -ipo
   endif
+
+  # Use MPI for parallelism
+  ifeq ($(USE_MPI),yes)
+    MPI_ROOT = /opt/mpich2/1.5b2-intel 
+    F90 = $(MPI_ROOT)/bin/mpif90
+    F90FLAGS += -DMPI
+  endif
+
 endif
 
 #===============================================================================
@@ -151,15 +178,6 @@ endif
 #===============================================================================
 # Miscellaneous compiler options
 #===============================================================================
-
-# Use MPI for parallelism
-
-ifeq ($(USE_MPI),yes)
-  MPI_ROOT = /opt/mpich2/1.5b2-intel 
-# F90 = $(MPI_ROOT)/bin/mpif90
-  F90 = /opt/mpich2/1.5b2-intel/bin/mpif90
-  F90FLAGS += -DMPI
-endif
 
 # Use HDF5 for output
 
