@@ -323,6 +323,7 @@ contains
 
     use on_the_fly_xs_gen, only: energy_doppler_broadened
     use LinearInterpolation, only: LinInterp
+    use doppler, only: broaden
 !    use constants, only: M_NEUT
 
     ! local variables
@@ -339,30 +340,14 @@ contains
 
           if (mat(k)%isotopes(i)%doppler) then
 
-            v = sqrt(2._8*neut%E/M_NEUT)
-            mat(k)%isotopes(i)%xs_capt_brdn = 0.0_8
-            mat(k)%isotopes(i)%xs_scat_brdn = 0.0_8
-            mat(k)%isotopes(i)%xs_fiss_brdn = 0.0_8
+            call broaden(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, mat(k)%isotopes(i)%A, T, &
+                 neut%E, mat(k)%isotopes(i)%xs_capt_brdn)
 
-            do j=1,sample_per_xs
-            ! sample the relative kinetic energy
-              call energy_doppler_broadened(v, mat(k)%isotopes(i)%alpha_MB, v_brdn)
-              E_brdn = 0.5_8*M_NEUT*v_brdn**2
+            call broaden(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, mat(k)%isotopes(i)%A, T, &
+                 neut%E, mat(k)%isotopes(i)%xs_scat_brdn)
 
-              ! broaden xs
-              call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, E_brdn, xs_capt_tmp)
-              mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn+v_brdn/v*xs_capt_tmp
-
-              call LinInterp(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, E_brdn, xs_scat_tmp)
-              mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn+v_brdn/v*xs_scat_tmp
-
-              call LinInterp(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, E_brdn, xs_fiss_tmp)
-              mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn+v_brdn/v*xs_fiss_tmp
-            end do
-
-            mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn/dble(sample_per_xs)
-            mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn/dble(sample_per_xs)
-            mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn/dble(sample_per_xs)
+            call broaden(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, mat(k)%isotopes(i)%A, T, &
+                 neut%E, mat(k)%isotopes(i)%xs_fiss_brdn)
 
     !        write(997, '(es19.8e3, 3x, es19.8e3)')  neut%E, mat(k)%isotopes(i)%xs_capt_brdn
     !        write(998, '(es19.8e3, 3x, es19.8e3)')  neut%E, mat(k)%isotopes(i)%xs_scat_brdn

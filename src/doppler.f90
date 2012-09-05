@@ -2,7 +2,7 @@ module doppler
 
   use constants, only: ZERO, ONE, PI, K_BOLTZMANN
   use BiSearch  ! binary search for the interval
-  use proj_record    ! count the time that each while loop is executed
+!  use proj_record    ! count the time that each while loop is executed
 
   implicit none
 
@@ -23,11 +23,13 @@ contains
 
     real(8), dimension(:), intent(in)  :: energy   ! energy grid
     real(8), dimension(:), intent(in)  :: xs       ! unbroadened cross section
-    integer, intent(in)  :: A_target    ! mass number of target
+    real(8), intent(in)  :: A_target    ! mass number of target
     real(8), intent(in)  :: T           ! temperature (difference)
     real(8), intent(in)  :: energypt     ! input energy where broadened xs is to be evaluated
     ! real(8), intent(out) :: sigmaNew(:) ! broadened cross section
     real(8), intent(out) :: sigmapt    ! broadened cross section at one point
+
+    real(8)              :: intg_width = 4.0_8  ! parameter for integration width
 
     ! Added by S. Xu (Mar. 2012)
     integer              :: energyintv ! the interval that the input energypt falls in
@@ -68,9 +70,9 @@ contains
        y_inv    = ONE / y
        y_inv_sq = y_inv / y
 
-       do k=1,3
-          count_0(k) = 0
-       end do
+!       do k=1,3
+!          count_0(k) = 0
+!       end do
 
 !        print *, energy
        ! find the interval that energypt falls in
@@ -163,7 +165,7 @@ contains
           ! Add contribution to broadened cross section
           sigmapt = sigmapt + Ak*(xs(k) - slope*xk**2) + slope*Bk
 
-          count_0(1) = count_0(1) + 1
+!          count_0(1) = count_0(1) + 1
        end do
 
 !       write(11, *) 'after first do loop ', sigmapt
@@ -279,7 +281,7 @@ contains
 
           k = k + 1
 
-          count_0(2) = count_0(2) + 1
+!          count_0(2) = count_0(2) + 1
        end do
 
 !       write(11, *) 'after second do ', sigmapt
@@ -353,7 +355,7 @@ contains
 
              k = k + 1
 
-             count_0(3) = count_0(3) + 1
+!             count_0(3) = count_0(3) + 1
           end do
 
 !          write(11, *) 'after do loop for second term ', sigmapt

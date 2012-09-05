@@ -15,4 +15,5 @@ physics.o \
 tally.o \
 tally_header.o \
 timing.o \
-random_lcg.o
+random_lcg.o \
+doppler.o
