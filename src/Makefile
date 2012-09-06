@@ -28,7 +28,6 @@ ON_KILKENNY = no
 #===============================================================================
 
 ifeq ($(COMPILER),gnu)
-
   ifeq ($(ON_KILKENNY), yes)
     F90 = /opt/gcc/4.4.1/bin/gfortran 
   else
@@ -59,9 +58,9 @@ ifeq ($(COMPILER),gnu)
   # Use MPI for parallelism
   ifeq ($(USE_MPI),yes)
     ifeq ($(ON_KILKENNY), yes)
-      MPI_ROOT = /opt/mpich2/1.5b2-intel 
-    else
-      MPI_ROOT = /usr
+	  MPI_ROOT = /opt/open-mpi/tcp-gnu44
+	else
+	  MPI_ROOT = /usr
     endif
     F90 = $(MPI_ROOT)/bin/mpif90
     F90FLAGS += -DMPI
@@ -79,7 +78,9 @@ ifeq ($(COMPILER),intel)
   LDFLAGS =
   
   # redefine HDF5_ROOT
-  export HDF5_ROOT = /opt/hdf5/1.8.9-intel
+  ifeq ($(ON_KILKENNY),yes)
+    export HDF5_ROOT = /opt/hdf5/1.8.9-intel
+  endif
   
   # Debugging
   ifeq ($(DEBUG),yes)
@@ -100,7 +101,11 @@ ifeq ($(COMPILER),intel)
 
   # Use MPI for parallelism
   ifeq ($(USE_MPI),yes)
-    MPI_ROOT = /opt/mpich2/1.5b2-intel 
+  
+    ifeq ($(ON_KILKENNY),yes)
+      MPI_ROOT = /opt/mpich2/1.5b2-intel
+	endif
+
     F90 = $(MPI_ROOT)/bin/mpif90
     F90FLAGS += -DMPI
   endif
