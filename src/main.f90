@@ -304,7 +304,7 @@ contains
 
     use global
     use execute, only: deallocate_problem
-    use tally,  only: reduce_tallies, finalize_tallies
+    use tally,  only: reduce_tallies, finalize_tallies, compute_res_intg
     use hdf5
     use output, only: write_output
 
@@ -323,14 +323,13 @@ contains
       ! calculate statistics on tallies
       call finalize_tallies()
 
-!      ! compute resonance integral
-!      if (res_intg) then
-!        call compute_res_intg()
-!      end if
+      ! compute resonance integral
+      if (res_intg) then
+        call compute_res_intg()
+      end if
 
       ! write output
       call write_output()
-
 
 ! close debug output
 #ifdef DEBUG

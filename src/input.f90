@@ -164,8 +164,8 @@ contains
     ! Added by S. Xu (Apr. 2012) for doppler broadening
     T = settings_%temperature
 
-!    ! for resonance integral
-!    res_intg = settings_%res_intg
+    ! for resonance integral
+    res_intg = settings_%res_intg
 
     ! get size of materials
     n_materials = size(materials_%material)
@@ -273,10 +273,10 @@ contains
         case('flux')
           react_type = 0
 
-!          ! for resonance integral
-!          if (res_intg) then
-!            res_intg_inf(2) = i
-!          end if
+          ! for resonance integral
+          if (res_intg) then
+            res_intg_inf(2) = i
+          end if
 
         case('total')
           react_type = 1
@@ -297,10 +297,10 @@ contains
           isotope = tallies_%tally(i)%isotope
           region = tallies_%tally(i)%region
 
-!          ! for resonance integral
-!          if (res_intg) then
-!            res_intg_inf(1) = i
-!          end if
+          ! for resonance integral
+          if (res_intg) then
+            res_intg_inf(1) = i
+          end if
 
         case DEFAULT
           react_type = 0

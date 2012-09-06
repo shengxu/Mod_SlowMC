@@ -63,10 +63,10 @@ contains
 
   subroutine write_output()
 
-    use global, only: time_init,time_run,reduced_tal,n_tallies,ana_kinf_mean,          &
-   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, output_filename, output_path
-!   &                   res_intg,res_intg_rec, write_res_intg
-   !&                  ,col_kinf_mean_2, col_kinf_std_2, reaction_tally, 
+!    use global, only: time_init,time_run,reduced_tal,n_tallies,ana_kinf_mean,          &
+!   &                  ana_kinf_std,col_kinf_mean,col_kinf_std, output_filename, output_path &
+!   &                   , res_intg, res_intg_fd, res_intg_rec
+    use global
     use hdf5
 
     ! local variables
@@ -176,12 +176,21 @@ contains
     ! close the file
     call h5fclose_f(hdfile,error)
 
-!    ! write out resonance integral information
-!    if (res_intg) then
-!      open(111,file=trim(output_path)//'res_'//trim(output_filename)//'.out', status="unknown")
-!      call write_res_intg(111)
-!      close(111)
-!    end if
+
+    ! write out resonance integral information
+    if (res_intg) then
+
+      open(res_intg_fd, file=trim(output_path)//'res_'//trim(output_filename)//'.out', status='unknown')
+
+      do i = 1,size(res_intg_rec,1)
+        write(res_intg_fd,'(es9.2e2, " --", es9.2e2, 5x, f10.5, 1x, "+/-", 1x, f10.5)') &
+            & tal(res_intg_inf(1))%E(i),tal(res_intg_inf(1))%E(i+1),res_intg_rec(i,1),res_intg_rec(i,2)
+      end do
+
+      close(res_intg_fd)
+
+    end if
+
 
 !    write(*,'(/A,A,/)') "Output files can be found in: ", trim(output_path)
     

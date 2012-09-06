@@ -43,16 +43,6 @@ module global
   integer :: res_iso     ! resonant isotope id in material 1
   real(8) :: Dancoff     ! lattice Dancoff factor (C)
   real(8) :: radius      ! radius of fuel pin
-!  real(8) :: T           ! temperature, added by S. Xu
-!  logical :: res_intg    ! indicator for resonance integral
-!  integer :: res_intg_inf(2)=0 ! store the index for micro_capture and flux tally
-!  real(8), allocatable :: res_intg_rec(:,:) ! to store resonance integral (with variance)
-
-! commented out by S. Xu (for compile dependency problem)
-!  ! set max and min energy
-!  real(8) :: emin = 1e-11_8
-!  real(8) :: emax = 20.0_8
-
 
   real(8)      :: T   ! temperature
   real(8) :: kT != 8.6173324e-5_8*300*1.0e-6_8
@@ -89,6 +79,12 @@ module global
   character(len=255)  :: filename    
   character(len=255)  :: output_filename
   character(len=255)  :: output_path
+
+!  For resonance integral tally
+  logical :: res_intg = .false.   ! indicator for resonance integral
+  integer :: res_intg_inf(2) = 0 ! store the index for micro_capture and flux tally
+  real(8), allocatable :: res_intg_rec(:,:) ! to store resonance integral (with variance)
+  integer :: res_intg_fd = 511   ! file descriptor for resonance integral
 
   ! ============================================================================
   ! PARALLEL PROCESSING VARIABLES

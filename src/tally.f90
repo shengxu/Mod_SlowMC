@@ -485,6 +485,39 @@ contains
 
   end subroutine calculate_statistics
 
+!===============================================================================
+! COMPUTE_RES_INTG
+!> @brief routine that computes resonance integrals
+!===============================================================================
+
+  subroutine compute_res_intg()
+
+    ! local variables
+    integer :: i ! loop counter
+    integer :: this_region
+    integer :: n_bin
+
+    if (reduced_tal(res_intg_inf(1))%nbins == reduced_tal(res_intg_inf(2))%nbins) then
+
+      n_bin = reduced_tal(res_intg_inf(1))%nbins
+      allocate(res_intg_rec(n_bin, 2))
+      this_region = reduced_tal(res_intg_inf(1))%region
+
+      res_intg_rec(:,1) = log(reduced_tal(res_intg_inf(1))%E(2:(n_bin+1))/reduced_tal(res_intg_inf(1))%E(1:n_bin)) * &
+   &                    reduced_tal(res_intg_inf(1))%mean(:,this_region)/reduced_tal(res_intg_inf(2))%mean(:,this_region)
+      res_intg_rec(:,2) = res_intg_rec(:,1)* &
+   &          (reduced_tal(res_intg_inf(1))%std(:,this_region)/reduced_tal(res_intg_inf(1))%mean(:,this_region)+  &
+   &           reduced_tal(res_intg_inf(2))%std(:,this_region)/reduced_tal(res_intg_inf(2))%mean(:,this_region))
+      
+    else
+
+      write(*,*) "For computing resonance integral: Energy bins of flux and micro capture are not the same!"   
+      stop
+
+    end if
+
+  end subroutine compute_res_intg
+
 
 !===============================================================================
 ! DEALLOCATE_TALLY
