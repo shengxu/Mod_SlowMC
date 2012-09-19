@@ -180,6 +180,8 @@ contains
     ! write out resonance integral information
     if (res_intg) then
 
+#ifndef MC
+! output resonance integral information
       open(res_intg_fd, file=trim(output_path)//'res_'//trim(output_filename)//'.out', status='unknown')
 
       do i = 1,size(res_intg_rec,1)
@@ -187,6 +189,17 @@ contains
             & tal(res_intg_inf(1))%E(i),tal(res_intg_inf(1))%E(i+1),res_intg_rec(i,1),res_intg_rec(i,2)
       end do
 
+#else
+! output microcapture information
+      open(res_intg_fd, file=trim(output_path)//'mc_'//trim(output_filename)//'.out', status='unknown')
+
+      do i = 1, reduced_tal(res_intg_inf(1))%nbins
+        write(res_intg_fd,'(es9.2e2, " --", es9.2e2, 5x, f10.5, 1x, "+/-", 1x, f10.5)') &
+            & tal(res_intg_inf(1))%E(i),tal(res_intg_inf(1))%E(i+1), &
+            reduced_tal(res_intg_inf(1))%mean(i, reduced_tal(res_intg_inf(1))%region), &
+            reduced_tal(res_intg_inf(1))%std(i, reduced_tal(res_intg_inf(1))%region)
+      end do
+#endif
       close(res_intg_fd)
 
     end if

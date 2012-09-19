@@ -89,8 +89,10 @@ contains
     integer :: error ! hdf5 error
     real(8) :: rn    ! initial random number
 
-!    ! begin timer
-!    call timer_start(time_init)
+#ifndef MPI
+    ! begin timer
+    call timer_start(time_init)
+#endif
 
     ! Setup MPI
     call setup_mpi()
@@ -106,7 +108,9 @@ contains
 
 !output debug information
 #ifdef DEBUG
+#ifdef MPI
     open(404, file='MPI_DEBUG.txt', status='unknown')
+#endif
 #endif
 
     end if
@@ -124,8 +128,10 @@ contains
 !    ! precompute macroscopic cross section of materials
 !    call compute_macro_cross_sections()
 
-!    ! end timer
-!    call timer_stop(time_init)
+#ifndef MPI
+    ! end timer
+    call timer_stop(time_init)
+#endif
 
   end subroutine initialize
 
@@ -230,8 +236,10 @@ contains
     ! local variables
     integer(8) :: i  ! iteration counter
 
-!    ! begin timer
-!    call timer_start(time_run)
+#ifndef MPI
+    ! begin timer
+    call timer_start(time_run)
+#endif
 
 ! every processor should know the number of history by reading it from either command line or input file
 !#ifdef MPI
@@ -289,9 +297,10 @@ contains
 
     end do
 
-!    ! end timer
-!    call timer_stop(time_run)
-
+#ifndef MPI
+    ! end timer
+    call timer_stop(time_run)
+#endif
 
   end subroutine run_problem
 
@@ -333,7 +342,9 @@ contains
 
 ! close debug output
 #ifdef DEBUG
+#ifdef MPI
     close(404)
+#endif
 #endif
     end if 
 

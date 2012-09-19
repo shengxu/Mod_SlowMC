@@ -193,7 +193,11 @@ ifeq ($(USE_HDF5),yes)
              ${HDF5_ROOT}/lib/libhdf5.a -lz -lrt -lm -Wl,-rpath -Wl,${HDF5_ROOT}/lib
 endif
 
-
+# for whether to output microcapture or resonance integral
+ifeq ($(MC), yes)
+  F90FLAGS += -DMC
+  LDFLAGS  += -DMC
+endif
 #===============================================================================
 # Options for IBM Blue Gene/P ANL supercomputer
 #===============================================================================

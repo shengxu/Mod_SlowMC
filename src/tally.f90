@@ -68,6 +68,10 @@ contains
     this%sum0 = 0.0_8
     this%sum0_sq = 0.0_8
 
+#ifdef DEBUG
+    print *, "nbins = ", nbins, " Ebins(1) = ", Ebins(1), "  Ebins(", nbins+1, ") = ", Ebins(nbins+1)
+#endif
+
   end subroutine set_user_tally
 
 !===============================================================================
@@ -331,21 +335,21 @@ contains
 
 #ifdef MPI    
 
-#ifdef DEBUG
-  write(404, *) 'n_tallies = ', n_tallies, ' from processor ', rank
-#endif
+!#ifdef DEBUG
+!  write(404, *) 'n_tallies = ', n_tallies, ' from processor ', rank
+!#endif
     do i = 1, n_tallies
         data_count = n_materials*tal(i)%nbins
 
-#ifdef DEBUG
-  write(404, *) 'i = ', i, 'n_materials = ', n_materials, 'tal(i)%nbins = ', tal(i)%nbins, "from processor ", rank
-  write(404, *) 'i = ', i, 'data_count = ', data_count, "from processor ", rank
-#endif
+!#ifdef DEBUG
+!  write(404, *) 'i = ', i, 'n_materials = ', n_materials, 'tal(i)%nbins = ', tal(i)%nbins, "from processor ", rank
+!  write(404, *) 'i = ', i, 'data_count = ', data_count, "from processor ", rank
+!#endif
 
-#ifdef DEBUG
-  write(404, *) 'tal(', i, ')%sum0 : ', tal(i)%sum0,  "from processor ", rank, data_count
-  write(404, *) 'reduced_tal(', i, ')%sum0: ', reduced_tal(i)%sum0, ' from processor ', rank
-#endif
+!#ifdef DEBUG
+!  write(404, *) 'tal(', i, ')%sum0 : ', tal(i)%sum0,  "from processor ", rank, data_count
+!  write(404, *) 'reduced_tal(', i, ')%sum0: ', reduced_tal(i)%sum0, ' from processor ', rank
+!#endif
 
 !print *, i,':',reduced_tal(i)%sum0
         call MPI_REDUCE(tal(i)%sum0, reduced_tal(i)%sum0, data_count, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
@@ -386,23 +390,23 @@ contains
     reduced_n_fiss = n_fiss
 #endif
 
-#ifdef DEBUG
+!#ifdef DEBUG
 
-!#ifdef MPI
-!  call MPI_BARRIER(MPI_COMM_WORLD, mpi_err)
+!!#ifdef MPI
+!!  call MPI_BARRIER(MPI_COMM_WORLD, mpi_err)
+!!#endif
+!  do i =1,n_tallies
+!      print *, i,':',reduced_tal(i)%sum0
+!  end do
+
+!  write(404, *) 'tal(n_tallies)%sum0 : ', tal(n_tallies)%sum0,  "from processor ", rank
+!  if (master) then
+!      write(404,*) 'Size of tallies:',size(reduced_tal),size(reduced_tal(1)%sum0)
+!      write(404, *) 'reduced_tal(n_tallies)%sum0: ', reduced_tal(n_tallies)%sum0, ' from processor ', rank
+
+!      write(404, *) 'n_abs = ', n_abs, ' reduced_n_abs = ', reduced_n_abs, "from processor ", rank
+!  end if
 !#endif
-  do i =1,n_tallies
-      print *, i,':',reduced_tal(i)%sum0
-  end do
-
-  write(404, *) 'tal(n_tallies)%sum0 : ', tal(n_tallies)%sum0,  "from processor ", rank
-  if (master) then
-      write(404,*) 'Size of tallies:',size(reduced_tal),size(reduced_tal(1)%sum0)
-      write(404, *) 'reduced_tal(n_tallies)%sum0: ', reduced_tal(n_tallies)%sum0, ' from processor ', rank
-
-      write(404, *) 'n_abs = ', n_abs, ' reduced_n_abs = ', reduced_n_abs, "from processor ", rank
-  end if
-#endif
 
   end subroutine reduce_tallies
 
@@ -503,11 +507,32 @@ contains
       allocate(res_intg_rec(n_bin, 2))
       this_region = reduced_tal(res_intg_inf(1))%region
 
-      res_intg_rec(:,1) = log(reduced_tal(res_intg_inf(1))%E(2:(n_bin+1))/reduced_tal(res_intg_inf(1))%E(1:n_bin)) * &
-   &                    reduced_tal(res_intg_inf(1))%mean(:,this_region)/reduced_tal(res_intg_inf(2))%mean(:,this_region)
-      res_intg_rec(:,2) = res_intg_rec(:,1)* &
-   &          (reduced_tal(res_intg_inf(1))%std(:,this_region)/reduced_tal(res_intg_inf(1))%mean(:,this_region)+  &
-   &           reduced_tal(res_intg_inf(2))%std(:,this_region)/reduced_tal(res_intg_inf(2))%mean(:,this_region))
+#ifdef DEBUG
+    print *, "reduced_tal(res_intg_inf(1))%E(1:n_bin)) =  ", reduced_tal(res_intg_inf(1))%E(1:n_bin)
+    print *, "reduced_tal(res_intg_inf(2))%mean(:,this_region) = ", reduced_tal(res_intg_inf(2))%mean(:,this_region)
+    print *, "reduced_tal(res_intg_inf(1))%mean(:,this_region) = ", reduced_tal(res_intg_inf(1))%mean(:,this_region)
+    print *, "reduced_tal(res_intg_inf(2))%mean(:,this_region)) = ", reduced_tal(res_intg_inf(2))%mean(:,this_region)
+#endif
+
+    do i = 1, n_bin
+
+      if (reduced_tal(res_intg_inf(2))%mean(i,this_region) /= 0 .and. & 
+          reduced_tal(res_intg_inf(1))%mean(i,this_region) /= 0 .and. &
+          reduced_tal(res_intg_inf(2))%mean(i,this_region) /= 0) then
+        res_intg_rec(i,1) = log(reduced_tal(res_intg_inf(1))%E(i+1)/reduced_tal(res_intg_inf(1))%E(i)) * &
+     &                    reduced_tal(res_intg_inf(1))%mean(i,this_region)/reduced_tal(res_intg_inf(2))%mean(i,this_region)
+        res_intg_rec(i,2) = res_intg_rec(i,1)* &
+     &          (reduced_tal(res_intg_inf(1))%std(i,this_region)/reduced_tal(res_intg_inf(1))%mean(i,this_region)+  &
+     &           reduced_tal(res_intg_inf(2))%std(i,this_region)/reduced_tal(res_intg_inf(2))%mean(i,this_region))
+      end if
+
+    end do
+
+!      res_intg_rec(:,1) = log(reduced_tal(res_intg_inf(1))%E(2:(n_bin+1))/reduced_tal(res_intg_inf(1))%E(1:n_bin)) * &
+!   &                    reduced_tal(res_intg_inf(1))%mean(:,this_region)/reduced_tal(res_intg_inf(2))%mean(:,this_region)
+!      res_intg_rec(:,2) = res_intg_rec(:,1)* &
+!   &          (reduced_tal(res_intg_inf(1))%std(:,this_region)/reduced_tal(res_intg_inf(1))%mean(:,this_region)+  &
+!   &           reduced_tal(res_intg_inf(2))%std(:,this_region)/reduced_tal(res_intg_inf(2))%mean(:,this_region))
       
     else
 
