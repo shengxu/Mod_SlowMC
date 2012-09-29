@@ -336,7 +336,6 @@ contains
     real(8) :: v_brdn
     real(8) :: xs_capt_tmp,xs_scat_tmp,xs_fiss_tmp
     real(8) :: rn  !random number
-    real(8) :: tmpvalue  ! for the stupid (or wise) fortran error with cubic root of a negative number
 !    real    :: dE ! for debug
 
     do k = 1, n_materials
@@ -379,39 +378,15 @@ contains
             ! find xs
             call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, neut%E, mat(k)%isotopes(i)%xs_capt_brdn)
             rn = prn()
-            tmpvalue = 2*rn-1
-            if (tmpvalue < 0) then
-                tmpvalue = - (-tmpvalue)**(1.0/3.0)
-            else
-                tmpvalue = tmpvalue**(1.0/3.0) 
-            end if
-            ! get a more "inaccurate" random distribution
-!            mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn*(1 + randerror*(2*rn - 1))
-!            print *, "rn = ", rn!, " (2*rn - 1)**(1.0/3.0) = ", (2*rn - 1)**(1.0/3.0)
-
-            mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn*(1 + randerror*tmpvalue)
+            mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn*(1 + randerror*(2*rn - 1))
             
             call LinInterp(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, neut%E, mat(k)%isotopes(i)%xs_scat_brdn)
             rn = prn()
-            tmpvalue = 2*rn-1
-            if (tmpvalue < 0) then
-                tmpvalue = - (-tmpvalue)**(1.0/3.0)
-            else
-                tmpvalue = tmpvalue**(1.0/3.0) 
-            end if
-!            mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn*(1 + randerror*(2*rn - 1))
-            mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn*(1 + randerror*tmpvalue)
+            mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn*(1 + randerror*(2*rn - 1))
       
             call LinInterp(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, neut%E, mat(k)%isotopes(i)%xs_fiss_brdn)
             rn = prn()
-            tmpvalue = 2*rn-1
-            if (tmpvalue < 0) then
-                tmpvalue = - (-tmpvalue)**(1.0/3.0)
-            else
-                tmpvalue = tmpvalue**(1.0/3.0) 
-            end if
-!            mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn*(1 + randerror*(2*rn - 1))
-            mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn*(1 + randerror*tmpvalue)
+            mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn*(1 + randerror*(2*rn - 1))
 
           else
 
