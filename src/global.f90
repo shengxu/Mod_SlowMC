@@ -34,6 +34,7 @@ module global
   integer :: source_type=1
   ! number of samples per xs for broadening
   integer :: sample_per_xs=1
+  real(8) :: randerror=0.05
 
   ! list global vars that are set during run
 ! Commented out by S. Xu

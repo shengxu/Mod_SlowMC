@@ -54,6 +54,8 @@ module material_header
     integer               :: scat_size     ! size of xs_scat
     integer               :: fiss_size     ! size of xs_fiss
     logical               :: doppler ! indicte whether doppler braodening is performed
+    logical               :: xsranderror ! indicte whether to use xs with random error
+    real(8)               :: randerror=0.05
 
   end type iso_type
 

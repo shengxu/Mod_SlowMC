@@ -49,6 +49,9 @@ contains
     logical                        :: dv           ! divide tally by volumes 
     ! added by S. Xu
     logical               :: doppler ! indicte whether doppler braodening is performed
+    logical               :: xsranderror ! indicte whether to use xs with random error
+    character(len=7)      :: randerror_str ! amount of random error
+    logical               :: randerror_from_cmdline ! amount of random error
     integer               :: n_arg   ! number of input argument
     character(len=255)    :: arg_str ! input arguments
     character             :: nhist_1digt, nhist_power ! convert nhistories to string          
@@ -74,8 +77,11 @@ contains
         case(3)
           read(arg_str, *) sample_per_xs
           samplexs_from_cmdline = .true.
+        case(4)
+          read(arg_str, *) randerror
+          randerror_from_cmdline = .true.
         case default
-          print *, 'Input argument should be less than or equal to 3'
+          print *, "Input argument list: filename, neutron_history, sample_per_xs and xs_random_eorror"
       end select
       i = i + 1
     end do
@@ -128,6 +134,7 @@ contains
       output_filename = trim(output_filename)//'_'//nhist_1digt//'e'//nhist_power
     end if
 
+    ! set up input for sample_per_xs
     if ( (.not. samplexs_from_cmdline) .and. (settings_%sample_per_xs/= 0) ) then
       sample_per_xs = settings_%sample_per_xs
     end if
@@ -142,6 +149,21 @@ contains
 
     if (samplexs_from_cmdline) then
       output_filename = trim(output_filename)//'_'//samplexs_str
+    end if
+
+    ! set up input for randerror
+    if ( (.not. randerror_from_cmdline) .and. (settings_%randerror/= 0) ) then
+      randerror = settings_%randerror
+    end if
+
+    if (master) then
+      write(*,'(A,e7.2E1/)') "amount of random error for xs: ", randerror
+
+      write(randerror_str,'(e7.2E1)') randerror
+    end if
+
+    if (randerror_from_cmdline) then
+      output_filename = trim(output_filename)//'_'//randerror_str
     end if
 
     seed = settings_%seed
@@ -242,9 +264,11 @@ contains
         name = materials_%material(i)%nuclides(j)%name 
         ! Added by S. Xu
         doppler = materials_%material(i)%nuclides(j)%doppler 
+        xsranderror = materials_%material(i)%nuclides(j)%xsranderror
+
 
         ! load the isotope into memory
-        call load_isotope(mat(i),N,A,path,thermal,name, doppler)
+        call load_isotope(mat(i),N,A,path,thermal,name, doppler, xsranderror)
 
         ! check for resonant isotope in material 1
         if (trim(materials_%material(i)%type)=='fuel' .and.                    &

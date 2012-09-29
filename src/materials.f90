@@ -53,7 +53,7 @@ contains
 !> @brief routine that loads isotope properties, xs, etc. into memory
 !===============================================================================
 
-  subroutine load_isotope(this,N,A,path,thermal,name, doppler)
+  subroutine load_isotope(this,N,A,path,thermal,name, doppler, xsranderror)
 
     use hdf5
 
@@ -66,6 +66,7 @@ contains
     logical                    :: thermal ! contains a thermal lib
     ! Added by S. Xu
     logical                    :: doppler !indicte whether doppler braodening is performed
+    logical                    :: xsranderror ! indicte whether to use xs with random error
 
     ! local variables
     integer                        :: error        ! hdf5 error 
@@ -95,6 +96,8 @@ contains
     ! Added by S. Xu (Apr. 2012) to calculate the alpha factor for doppler broadening
     this%isotopes(this%curr_iso)%alpha_MB = A*M_NUCLEON/2._8/K_BOLTZMANN/T
     this%isotopes(this%curr_iso)%doppler = doppler
+    this%isotopes(this%curr_iso)%xsranderror = xsranderror
+    this%isotopes(this%curr_iso)%randerror = randerror
 
     ! open up hdf5 file
     call h5fopen_f(trim(path),H5F_ACC_RDWR_F,hdf5_file,error)
@@ -323,6 +326,7 @@ contains
 
     use on_the_fly_xs_gen, only: energy_doppler_broadened
     use LinearInterpolation, only: LinInterp
+    use random_lcg, only: prn
 !    use constants, only: M_NEUT
 
     ! local variables
@@ -331,6 +335,7 @@ contains
     real(8) :: v
     real(8) :: v_brdn
     real(8) :: xs_capt_tmp,xs_scat_tmp,xs_fiss_tmp
+    real(8) :: rn  !random number
 !    real    :: dE ! for debug
 
     do k = 1, n_materials
@@ -367,6 +372,21 @@ contains
     !        write(997, '(es19.8e3, 3x, es19.8e3)')  neut%E, mat(k)%isotopes(i)%xs_capt_brdn
     !        write(998, '(es19.8e3, 3x, es19.8e3)')  neut%E, mat(k)%isotopes(i)%xs_scat_brdn
     !        write(999, '(es19.8e3, 3x, es19.8e3)')  neut%E, mat(k)%isotopes(i)%xs_fiss_brdn
+
+          else if (mat(k)%isotopes(i)%xsranderror) then
+
+            ! find xs
+            call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, neut%E, mat(k)%isotopes(i)%xs_capt_brdn)
+            rn = prn()
+            mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn*(1 + randerror*(2*rn - 1))
+            
+            call LinInterp(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, neut%E, mat(k)%isotopes(i)%xs_scat_brdn)
+            rn = prn()
+            mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn*(1 + randerror*(2*rn - 1))
+      
+            call LinInterp(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, neut%E, mat(k)%isotopes(i)%xs_fiss_brdn)
+            rn = prn()
+            mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn*(1 + randerror*(2*rn - 1))
 
           else
 

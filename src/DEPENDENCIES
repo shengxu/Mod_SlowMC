@@ -18,6 +18,7 @@ materials.o: constants.o
 materials.o: global.o
 materials.o: on_the_fly_xs_gen.o
 materials.o: LinearInterpolation.o
+materials.o: random_lcg.o
 
 tally.o: BiSearch.o
 
