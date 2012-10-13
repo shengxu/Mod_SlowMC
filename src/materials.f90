@@ -375,32 +375,24 @@ contains
 
           else if (mat(k)%isotopes(i)%xsranderror) then
 
-            ! find xs
-            call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, neut%E, mat(k)%isotopes(i)%xs_capt_brdn)
             rn = prn()
             if (rn .le. 0.5) then
               rn = (sqrt(2.0*rn) - 1.0)/2.0
             else
               rn = (1.0 - sqrt(2.0 - 2.0*rn) )/2.0
             end if
+
+            ! find xs
+            call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, neut%E, mat(k)%isotopes(i)%xs_capt_brdn)
+
             mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn*(1 + randerror*rn)
             
             call LinInterp(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, neut%E, mat(k)%isotopes(i)%xs_scat_brdn)
-            rn = prn()
-            if (rn .le. 0.5) then
-              rn = (sqrt(2.0*rn) - 1.0)/2.0
-            else
-              rn = (1.0 - sqrt(2.0 - 2.0*rn) )/2.0
-            end if
+
             mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn*(1 + randerror*rn)
       
             call LinInterp(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, neut%E, mat(k)%isotopes(i)%xs_fiss_brdn)
-            rn = prn()
-            if (rn .le. 0.5) then
-              rn = (sqrt(2.0*rn) - 1.0)/2.0
-            else
-              rn = (1.0 - sqrt(2.0 - 2.0*rn) )/2.0
-            end if
+
             mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn*(1 + randerror*rn)
 
           else
