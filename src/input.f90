@@ -54,7 +54,7 @@ contains
     character             :: nhist_1digt, nhist_power ! convert nhistories to string          
     logical               :: nhist_from_cmdline ! check whether nhistories is input from command line
     logical               :: samplexs_from_cmdline ! check whether sample_per_xs is input from command line
-    character(len=3)      :: samplexs_str
+    character(len=8)      :: samplexs_str
 ! Modified by S. Xu (May 2012)
 !    ! check for input file
 !    filename = "input.xml"
@@ -135,7 +135,8 @@ contains
     if (master) then
       write(*,'(A,i15/)') "number of sample per xs data: ", sample_per_xs
 
-      write(samplexs_str,'(i3.3)') sample_per_xs
+!      write(samplexs_str,'(i3.3)') sample_per_xs
+      write(samplexs_str,'(e7.2E1)') dble(sample_per_xs)
     end if
 
 !write(*, *) samplexs_str
