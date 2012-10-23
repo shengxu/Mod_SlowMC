@@ -70,6 +70,10 @@ module global
   real(8) :: col_kinf_std  = 0.0_8
   integer :: reduced_n_abs=0
   integer :: reduced_n_fiss=0
+  ! for escape probability
+  integer(8) :: num_escape
+  integer(8) :: reduced_num_escape
+  real(8) :: ecut = 1e-6_8
 
 !  !added by S. Xu (May. 2012)
 !  real(8) :: col_kinf_mean_2 = 0.0_8

@@ -235,6 +235,7 @@ contains
 
     ! local variables
     integer(8) :: i  ! iteration counter
+!    integer(8) :: num_escape
 
 #ifndef MPI
     ! begin timer
@@ -264,7 +265,10 @@ contains
       do while (neut%alive)
 
         ! check for energy cutoff
-        if (neut%E < emin) neut%E = 1.1e-11_8
+        if (neut%E <= ecut) then
+          num_escape = num_escape + 1
+          exit
+        end if
 
 ! Commented out by S. Xu (Apr. 2012)
 !        ! call index routine for first tally
@@ -283,6 +287,8 @@ contains
         ! perform physics and also records collision tally
         call perform_physics()
 
+!        exit  ! for checking the sample source
+
       end do
 
       ! neutron is dead if out of transport loop (ecut or absorb) --> bank tally
@@ -290,7 +296,7 @@ contains
 
       if (master) then
         ! print update to user
-        if (mod(i,nhistories/10) <= n_procs-1) then
+        if (mod(i,nhistories/10) <= (n_procs-1)) then
           write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
         end if
       end if
@@ -318,14 +324,24 @@ contains
     use output, only: write_output
 
 #ifdef MPI
-    use mpi
+    use mpi    
 #endif
 
     ! local variables
     integer :: error ! hdf5 error
+!    integer(8) :: reduced_num_escape
+
+#ifdef MPI
+    call MPI_REDUCE(num_escape, reduced_num_escape, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+    if (mpi_err /= MPI_SUCCESS) then
+       print *, "Failed to reduce num_escape."
+       stop
+    end if
+#else
+    reduced_num_escape = num_escape
+#endif
 
     call reduce_tallies()
-
 
     if (master) then
 
@@ -336,6 +352,13 @@ contains
       if (res_intg) then
         call compute_res_intg()
       end if
+
+      ! write out escape probability
+      open(833, file=trim(output_path)//'esc_'//trim(output_filename)//'.out', status='unknown')
+
+      write(833,'(es9.2e2)') dble(reduced_num_escape*1.0/nhistories)
+
+      close(833)
 
       ! write output
       call write_output()

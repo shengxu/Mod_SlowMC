@@ -27,30 +27,36 @@ contains
     ! local variables
     integer :: idx ! index for sampling
     real(8) :: rn  ! sampled random number
+    real(8) :: E1 = 1e-5_8  ! 10 eV
+    real(8) :: E2 = 2e-5_8  ! 20 eV
+    real(8) :: uwidth        ! lethargy width 
 
-    ! sample a random number
-    rn = prn()
-    
-!#ifdef DEBUG
-!    if (master) then
-!        print*, rn
-!    end if
-!#endif
+!    ! sample a random number
+!    rn = prn()
 
-    ! compute index in cdf
-    idx = ceiling(rn / mat(1)%source%cdf_width) + 1
+!!    ! compute index in cdf
+!!    idx = ceiling(rn / mat(1)%source%cdf_width) + 1
 
-    ! bounds checker
-    if (idx > size(mat(1)%source%E)) then
-      write(*,*) 'Bounds error on source samplings'
-      write(*,*) 'Random number:',rn
-      write(*,*) 'Index Location:',idx
-      stop
-    end if
+!!    ! bounds checker
+!!    if (idx > size(mat(1)%source%E)) then
+!!      write(*,*) 'Bounds error on source samplings'
+!!      write(*,*) 'Random number:',rn
+!!      write(*,*) 'Index Location:',idx
+!!      stop
+!!    end if
 
-    ! extract that E and set it to neutron
-    neut%E = mat(1)%source%E(idx)
+!!    ! extract that E and set it to neutron
+!!    neut%E = mat(1)%source%E(idx)
 
+!    uwidth = log(E2/E1)
+!    neut%E = E2*exp(-uwidth*rn)
+
+    ! single energy source
+    neut%E = E2
+
+#ifdef DEBUG
+  print *, "neut%E = ", neut%E
+#endif
   end subroutine sample_source
 
 !===============================================================================
