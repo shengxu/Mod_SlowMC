@@ -103,7 +103,7 @@ ifeq ($(COMPILER),intel)
   ifeq ($(USE_MPI),yes)
   
     ifeq ($(ON_KILKENNY),yes)
-      MPI_ROOT = /opt/mpich2/1.5b2-intel
+      MPI_ROOT = /opt/mpich2/1.5-intel
 	endif
 
     F90 = $(MPI_ROOT)/bin/mpif90

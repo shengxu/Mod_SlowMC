@@ -356,7 +356,7 @@ contains
       ! write out escape probability
       open(833, file=trim(output_path)//'esc_'//trim(output_filename)//'.out', status='unknown')
 
-      write(833,'(es9.2e2)') dble(reduced_num_escape*1.0/nhistories)
+      write(833,'(f19.9)') dble(reduced_num_escape*1.0/nhistories)
 
       close(833)
 
