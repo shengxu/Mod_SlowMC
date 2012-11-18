@@ -1,4 +1,4 @@
-% U-238 Cross Sections
+% Cross Sections for any isotope specified with "isoname" and  of temperature "T" below
 
 isoname = 'U235';  % isotope name
 T = 300;
@@ -36,7 +36,7 @@ h5write(hdfile,'/xs_capt',xs_capt(:,2));
 h5create(hdfile,'/scat_size',1);
 h5write(hdfile,'/scat_size',scat_size);
 h5create(hdfile,'/engy_scat',scat_size);
-h5write(hdfile,'/engy_scat',xs_scat(:,1)*1e-6); %same energy grid xs capt xs
+h5write(hdfile,'/engy_scat',xs_scat(:,1)*1e-6); %same energy grid vs capt xs
 h5create(hdfile,'/xs_scat',scat_size);
 h5write(hdfile,'/xs_scat',xs_scat(:,2));
 % fission xs data
