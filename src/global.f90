@@ -60,8 +60,8 @@ module global
   ! timers
   type(Timer) :: time_init
   type(Timer) :: time_run
-  real        :: init_time
-  real        :: run_time
+  real(8)       :: init_time
+  real(8)       :: run_time
 
   ! for batch statistic
   integer :: nbatch = 100

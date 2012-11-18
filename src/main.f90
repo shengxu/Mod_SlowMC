@@ -90,7 +90,7 @@ contains
     real(8) :: rn    ! initial random number
 
     ! begin timer
-#ifndef MPI
+#ifdef MPI
     init_time = MPI_Wtime()
 #else
     call timer_start(time_init)
