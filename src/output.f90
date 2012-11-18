@@ -84,8 +84,14 @@ contains
     write(*,'(/A,/,A,/)') "Results","-----------------------"
 
     ! write timing information
+#ifdef MPI
+    write(*,100) "Initialization time:", init_time
+    write(*,100) "Transport time:", run_time
+#else
     write(*,100) "Initialization time:",time_init%elapsed
     write(*,100) "Transport time:",time_run%elapsed
+#endif
+
     write(*,*)
 
     ! format for time write statements
@@ -112,8 +118,13 @@ contains
         write(112,'(/A,/,A,/)') "Results","-----------------------"
 
         ! write timing information
+#ifdef MPI
+    write(112, 100) "Initialization time:", init_time
+    write(112, 100) "Transport time:", run_time
+#else
         write(112,100) "Initialization time:",time_init%elapsed
         write(112,100) "Transport time:",time_run%elapsed
+#endif
         write(112,*)
 
         ! write k-inf information

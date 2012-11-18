@@ -60,6 +60,11 @@ module global
   ! timers
   type(Timer) :: time_init
   type(Timer) :: time_run
+  real        :: init_time
+  real        :: run_time
+
+  ! for batch statistic
+  integer :: nbatch = 100
 
   ! analog counters for k-inf
   integer :: n_abs=0
@@ -72,7 +77,12 @@ module global
   integer :: reduced_n_fiss=0
   ! for escape probability
   integer(8) :: num_escape
-  integer(8) :: reduced_num_escape
+!  integer(8) :: reduced_num_escape
+  real(8) :: p_esc = 0.0
+!  real(8) :: std_esc = 0.0
+  real(8) :: reduced_p_esc = 0.0
+  real(8) :: p_esc_f = 0.0
+  real(8) :: std_esc_f = 0.0
   real(8) :: ecut = 1e-6_8
 
 !  !added by S. Xu (May. 2012)

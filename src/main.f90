@@ -89,8 +89,10 @@ contains
     integer :: error ! hdf5 error
     real(8) :: rn    ! initial random number
 
-#ifndef MPI
     ! begin timer
+#ifndef MPI
+    init_time = MPI_Wtime()
+#else
     call timer_start(time_init)
 #endif
 
@@ -128,8 +130,10 @@ contains
 !    ! precompute macroscopic cross section of materials
 !    call compute_macro_cross_sections()
 
-#ifndef MPI
     ! end timer
+#ifdef MPI
+    init_time = MPI_Wtime() - init_time
+#else
     call timer_stop(time_init)
 #endif
 
@@ -234,11 +238,14 @@ contains
 !    use on_the_fly_xs_gen, only: doppler_broaden
 
     ! local variables
-    integer(8) :: i  ! iteration counter
+    integer(8) :: i, j  ! iteration counter
 !    integer(8) :: num_escape
+    integer(8) :: n_per_batch
 
-#ifndef MPI
     ! begin timer
+#ifdef MPI
+    run_time = MPI_Wtime()
+#else
     call timer_start(time_run)
 #endif
 
@@ -249,62 +256,91 @@ contains
 !    end if
 !#endif
 
+    n_per_batch = nhistories/nbatch
+
     ! begin loop over histories
-    do i = rank + 1, nhistories, n_procs
+    do j = 1, nbatch
+!      do i = rank + 1, nhistories, n_procs
+      num_escape = 0
+      do i = (j - 1)*n_per_batch + rank + 1, j*n_per_batch, n_procs
 
-      ! set the seed for random number generator for each particle history
-      call set_particle_seed(i)
+        ! set the seed for random number generator for each particle history
+        call set_particle_seed(i)
 
-      ! intialize history
-      call init_particle(neut)
+        ! intialize history
+        call init_particle(neut)
 
-      ! sample source energy
-      call sample_source()
+        ! sample source energy
+        call sample_source()
 
-      ! begin transport of neutron
-      do while (neut%alive)
+        ! begin transport of neutron
+        do while (neut%alive)
 
-        ! check for energy cutoff
-        if (neut%E <= ecut) then
-          num_escape = num_escape + 1
-          exit
+          ! check for energy cutoff
+          if (neut%E <= ecut) then
+            num_escape = num_escape + 1
+            exit
+          end if
+
+  ! Commented out by S. Xu (Apr. 2012)
+  !        ! call index routine for first tally
+  !        eidx = get_eidx(neut%E)
+
+
+  !-----------------------------------------------------------------------
+  ! Added by S. Xu (APr. 2012)
+          ! doppler broadening
+          call doppler_broaden()
+
+          ! compute macroscopic xs
+          call compute_macro_xs()
+  !-----------------------------------------------------------------------
+
+          ! perform physics and also records collision tally
+          call perform_physics()
+
+  !        exit  ! for checking the sample source
+
+        end do
+
+        ! neutron is dead if out of transport loop (ecut or absorb) --> bank tally
+        call bank_tallies()
+
+        if (master) then
+          ! print update to user
+          if (mod(i,nhistories/10) <= (n_procs-1)) then
+            write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
+          end if
         end if
-
-! Commented out by S. Xu (Apr. 2012)
-!        ! call index routine for first tally
-!        eidx = get_eidx(neut%E)
-
-
-!-----------------------------------------------------------------------
-! Added by S. Xu (APr. 2012)
-        ! doppler broadening
-        call doppler_broaden()
-
-        ! compute macroscopic xs
-        call compute_macro_xs()
-!-----------------------------------------------------------------------
-
-        ! perform physics and also records collision tally
-        call perform_physics()
-
-!        exit  ! for checking the sample source
 
       end do
 
-      ! neutron is dead if out of transport loop (ecut or absorb) --> bank tally
-      call bank_tallies()
+      p_esc = num_escape*1.0/n_per_batch
 
-      if (master) then
-        ! print update to user
-        if (mod(i,nhistories/10) <= (n_procs-1)) then
-          write(*,'(/A,1X,I0,1X,A)') 'Simulated',i,'neutrons...'
-        end if
-      end if
+#ifdef MPI
+    call MPI_REDUCE(p_esc, reduced_p_esc, 1, MPI_REAL8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+    if (mpi_err /= MPI_SUCCESS) then
+       print *, "Failed to reduce num_escape."
+       stop
+    end if
+#else
+    reduced_p_esc = p_esc
+#endif
+
+    if (master) then
+      p_esc_f = p_esc_f + reduced_p_esc
+      std_esc_f = std_esc_f + reduced_p_esc**2
+#ifdef DEBUG
+print *, 'reduced_p_esc = ', reduced_p_esc, 'sum of p_esc = ', p_esc_f, 'sum of p_esc^2 = ', std_esc_f
+#endif
+    end if
 
     end do
 
-#ifndef MPI
     ! end timer
+#ifdef MPI
+    run_time = MPI_Wtime() - run_time
+#else
     call timer_stop(time_run)
 #endif
 
@@ -331,15 +367,15 @@ contains
     integer :: error ! hdf5 error
 !    integer(8) :: reduced_num_escape
 
-#ifdef MPI
-    call MPI_REDUCE(num_escape, reduced_num_escape, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
-    if (mpi_err /= MPI_SUCCESS) then
-       print *, "Failed to reduce num_escape."
-       stop
-    end if
-#else
-    reduced_num_escape = num_escape
-#endif
+!#ifdef MPI
+!    call MPI_REDUCE(num_escape, reduced_num_escape, 1, MPI_INTEGER8, MPI_SUM, 0, MPI_COMM_WORLD, mpi_err)
+!    if (mpi_err /= MPI_SUCCESS) then
+!       print *, "Failed to reduce num_escape."
+!       stop
+!    end if
+!#else
+!    reduced_num_escape = num_escape
+!#endif
 
     call reduce_tallies()
 
@@ -353,10 +389,15 @@ contains
         call compute_res_intg()
       end if
 
+
+      p_esc_f = p_esc_f/dble(nbatch)
+      std_esc_f = sqrt( (std_esc_f/dble(nbatch) - p_esc_f**2) / dble(nbatch) )
       ! write out escape probability
       open(833, file=trim(output_path)//'esc_'//trim(output_filename)//'.out', status='unknown')
 
-      write(833,'(f19.9)') dble(reduced_num_escape*1.0/nhistories)
+!      write(833,'(f19.9)') dble(reduced_num_escape*1.0/nhistories)
+
+      write(833,'(f19.9, 4x, f19.9)') p_esc_f, std_esc_f
 
       close(833)
 
