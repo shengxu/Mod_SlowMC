@@ -1,6 +1,6 @@
 % Cross Sections for any isotope specified with "isoname" and  of temperature "T" below
 
-isoname = 'U235';  % isotope name
+isoname = 'U238';  % isotope name
 T = 300;
 
 % !!!IMPORTANT: energy grid for input xs data are in unit eV
