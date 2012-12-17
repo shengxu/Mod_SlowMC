@@ -51,7 +51,7 @@ contains
     logical               :: doppler ! indicte whether doppler braodening is performed
     integer               :: n_arg   ! number of input argument
     character(len=255)    :: arg_str ! input arguments
-    character             :: nhist_1digt, nhist_power ! convert nhistories to string          
+    character(len=2)      :: nhist_1digt, nhist_power ! convert nhistories to string          
     logical               :: nhist_from_cmdline ! check whether nhistories is input from command line
     logical               :: samplexs_from_cmdline ! check whether sample_per_xs is input from command line
     character(len=8)      :: samplexs_str
@@ -119,10 +119,10 @@ contains
       write(*,'(A,i15/)') "number of history: ", nhistories
 
     ! get the neutron histories to output file name
-      write(nhist_power, '(i1)') int(log10(dble(nhistories)))
-      write(nhist_1digt, '(i1)') int(nhistories/10**log10(dble(nhistories)))
+      write(nhist_power, '(i2)') int(log10(dble(nhistories)))
+      write(nhist_1digt, '(i2)') int(nhistories/10**log10(dble(nhistories)))
+print *, nhist_1digt, nhist_power
     end if
-!print *, nhist_1digt, nhist_power
 
     if (nhist_from_cmdline) then
       output_filename = trim(output_filename)//'_'//nhist_1digt//'e'//nhist_power
