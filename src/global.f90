@@ -83,7 +83,7 @@ module global
   real(8) :: reduced_p_esc = 0.0
   real(8) :: p_esc_f = 0.0
   real(8) :: std_esc_f = 0.0
-  real(8) :: ecut = 6e-6_8  !1e-6_8
+  real(8) :: ecut = 1e-6_8  !1e-6_8
 
 !  !added by S. Xu (May. 2012)
 !  real(8) :: col_kinf_mean_2 = 0.0_8

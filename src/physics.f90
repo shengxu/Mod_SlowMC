@@ -28,7 +28,7 @@ contains
     integer :: idx ! index for sampling
     real(8) :: rn  ! sampled random number
     real(8) :: E1 = 1e-5_8  ! 10 eV
-    real(8) :: E2 = 7e-6_8   ! 2e-5_8  ! 20 eV
+    real(8) :: E2 = 2e-5_8   ! 2e-5_8  ! 20 eV
     real(8) :: uwidth        ! lethargy width 
 
 !    ! sample a random number
