@@ -332,6 +332,10 @@ contains
     real(8) :: v_brdn
     real(8) :: xs_capt_tmp,xs_scat_tmp,xs_fiss_tmp
 !    real    :: dE ! for debug
+    real(8), parameter :: relerr_cut = 1.e-5
+    real(8)            :: relerr, relerr2
+    real(8)            :: tmp_brdn
+    integer            :: sample_cnt
 
     do k = 1, n_materials
 
@@ -344,22 +348,38 @@ contains
             mat(k)%isotopes(i)%xs_scat_brdn = 0.0_8
             mat(k)%isotopes(i)%xs_fiss_brdn = 0.0_8
 
-            do j=1,sample_per_xs
-            ! sample the relative kinetic energy
-              call energy_doppler_broadened(v, mat(k)%isotopes(i)%alpha_MB, v_brdn)
-              E_brdn = 0.5_8*M_NEUT*v_brdn**2
-
-              !! only broaden capture xs
-              ! broaden xs
-              call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, E_brdn, xs_capt_tmp)
-              mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn+v_brdn/v*xs_capt_tmp/dble(sample_per_xs)
-
-!              call LinInterp(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, E_brdn, xs_scat_tmp)
-!              mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn+v_brdn/v*xs_scat_tmp/dble(sample_per_xs)
-
-!              call LinInterp(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, E_brdn, xs_fiss_tmp)
-!              mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn+v_brdn/v*xs_fiss_tmp/dble(sample_per_xs)
+            relerr = 1.0
+            relerr2 = 1.0
+            tmp_brdn = 0.0
+            sample_cnt = 0
+            do while (relerr >= relerr_cut .and. relerr2 >= relerr_cut)
+                sample_cnt = sample_cnt + 1
+                call energy_doppler_broadened(v, mat(k)%isotopes(i)%alpha_MB, v_brdn)
+                E_brdn = 0.5_8*M_NEUT*v_brdn**2
+                call LinInterp (mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, E_brdn, xs_capt_tmp)
+                tmp_brdn = mat(k)%isotopes(i)%xs_capt_brdn
+                mat(k)%isotopes(i)%xs_capt_brdn = (mat(k)%isotopes(i)%xs_capt_brdn* &
+& dble(sample_cnt-1) + v_brdn/v*xs_capt_tmp)/dble(sample_cnt)
+                relerr2 = relerr
+                relerr = abs((tmp_brdn - mat(k)%isotopes(i)%xs_capt_brdn)/mat(k)%isotopes(i)%xs_capt_brdn)
             end do
+
+!            do j=1,sample_per_xs
+!            ! sample the relative kinetic energy
+!              call energy_doppler_broadened(v, mat(k)%isotopes(i)%alpha_MB, v_brdn)
+!              E_brdn = 0.5_8*M_NEUT*v_brdn**2
+
+!              !! only broaden capture xs
+!              ! broaden xs
+!              call LinInterp(mat(k)%isotopes(i)%engy_capt, mat(k)%isotopes(i)%xs_capt, E_brdn, xs_capt_tmp)
+!              mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn+v_brdn/v*xs_capt_tmp/dble(sample_per_xs)
+
+!!              call LinInterp(mat(k)%isotopes(i)%engy_scat, mat(k)%isotopes(i)%xs_scat, E_brdn, xs_scat_tmp)
+!!              mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn+v_brdn/v*xs_scat_tmp/dble(sample_per_xs)
+
+!!              call LinInterp(mat(k)%isotopes(i)%engy_fiss, mat(k)%isotopes(i)%xs_fiss, E_brdn, xs_fiss_tmp)
+!!              mat(k)%isotopes(i)%xs_fiss_brdn = mat(k)%isotopes(i)%xs_fiss_brdn+v_brdn/v*xs_fiss_tmp/dble(sample_per_xs)
+!            end do
 
 !            mat(k)%isotopes(i)%xs_capt_brdn = mat(k)%isotopes(i)%xs_capt_brdn/dble(sample_per_xs)
 !            mat(k)%isotopes(i)%xs_scat_brdn = mat(k)%isotopes(i)%xs_scat_brdn/dble(sample_per_xs)
